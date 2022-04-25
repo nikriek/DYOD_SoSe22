@@ -65,7 +65,7 @@ ColumnID Table::column_id_by_name(const std::string& column_name) const {
   // search in the column name list. Otherwise, we would need different
   // data structures which are not useful and have overhead in a prod release.
   // Linear search shouldn't be distinguishably slow on small vectors, anyways
-  auto pos =
+  const auto pos =
       std::distance(_column_names.cbegin(), std::find(_column_names.cbegin(), _column_names.cend(), column_name));
   DebugAssert(pos < column_count(), "Column name was not found");
   return ColumnID{pos};

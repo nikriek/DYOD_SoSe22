@@ -55,12 +55,13 @@ TEST_F(StorageStorageManagerTest, TableNames) {
   auto& storage_manager = StorageManager::get();
   auto table_names = storage_manager.table_names();
   // The insertion order is different to return value order due to hashing
-  auto expected_table_names = std::vector<std::string> { "second_table", "first_table"};
-  
-  ASSERT_EQ(table_names.size(), expected_table_names.size()) << "Vectors table_names and expected_table_names are of unequal length";
+  auto expected_table_names = std::vector<std::string>{"second_table", "first_table"};
 
+  ASSERT_EQ(table_names.size(), expected_table_names.size())
+      << "Vectors table_names and expected_table_names are of unequal length";
   for (size_t i = 0; i < table_names.size(); ++i) {
-    EXPECT_EQ(table_names[i], expected_table_names[i]) << "Vectors table_names and expected_table_names differ at index " << i;
+    EXPECT_EQ(table_names[i], expected_table_names[i])
+        << "Vectors table_names and expected_table_names differ at index " << i;
   }
 }
 
@@ -75,7 +76,9 @@ TEST_F(StorageStorageManagerTest, Print) {
 
   std::stringstream out;
   storage_manager.print(out);
-  EXPECT_EQ(out.str(), "Name: second_table, #columns: 0, #rows: 0, #chunks: 1\nName: first_table, #columns: 2, #rows: 3, #chunks: 1\n");
+  EXPECT_EQ(
+      out.str(),
+      "Name: second_table, #columns: 0, #rows: 0, #chunks: 1\nName: first_table, #columns: 2, #rows: 3, #chunks: 1\n");
 }
 
 }  // namespace opossum

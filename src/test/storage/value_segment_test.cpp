@@ -54,4 +54,26 @@ TEST_F(StorageValueSegmentTest, MemoryUsage) {
   EXPECT_EQ(int_value_segment.estimate_memory_usage(), size_t{8});
 }
 
+TEST_F(StorageValueSegmentTest, SubscriptOperator) {
+  int_value_segment.append(1337);
+  int_value_segment.append(1338);
+  EXPECT_EQ(int_value_segment[0], AllTypeVariant(1337));
+  EXPECT_EQ(int_value_segment[1], AllTypeVariant(1338));
+}
+
+TEST_F(StorageValueSegmentTest, Values) {
+  int_value_segment.append(1337);
+  int_value_segment.append(1338);
+
+  auto values = int_value_segment.values();
+  std::vector<int> expected_variants = {1337, 1338};
+
+  ASSERT_EQ(values.size(), expected_variants.size())
+      << "Vectors int_value_segment.values() and expected_variants are of unequal length";
+  for (size_t i = 0; i < values.size(); ++i) {
+    EXPECT_EQ(values[i], expected_variants[i])
+        << "Vectors int_value_segment.values() and expected_variants differ at index " << i;
+  }
+}
+
 }  // namespace opossum

@@ -20,7 +20,7 @@ AllTypeVariant ValueSegment<T>::operator[](const ChunkOffset chunk_offset) const
 template <typename T>
 void ValueSegment<T>::append(const AllTypeVariant& val) {
   // TODO: Max size of vector
-  auto containedValue = type_cast<T>(val);
+  const auto containedValue = type_cast<T>(val);
   _values.push_back(containedValue);
 }
 
