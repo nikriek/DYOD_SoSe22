@@ -10,8 +10,8 @@
 namespace opossum {
 
 StorageManager& StorageManager::get() {
-  return *(new StorageManager());
-  // A really hacky fix to get the tests to run - replace this with your implementation
+  static StorageManager instance;
+  return instance;
 }
 
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {

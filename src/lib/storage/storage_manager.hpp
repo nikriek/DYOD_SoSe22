@@ -43,8 +43,6 @@ class StorageManager : private Noncopyable {
  protected:
   StorageManager() {}
   StorageManager& operator=(StorageManager&&) = default;
-
-  // Implementation goes here
 };
 
 }  // namespace opossum
