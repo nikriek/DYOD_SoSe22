@@ -21,6 +21,7 @@ namespace opossum {
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); };
 
 void Table::add_column(const std::string& name, const std::string& type) {
+  // TODO: Only allow for empty table
   _column_names.push_back(name);
   _column_types.push_back(type);
     
@@ -60,7 +61,6 @@ ChunkOffset Table::row_count() const {
 }
 
 ChunkID Table::chunk_count() const {
-  // Implementation goes here
   return ChunkID{_chunks.size()};
 }
 
