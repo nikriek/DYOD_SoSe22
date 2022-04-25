@@ -31,7 +31,7 @@ class ValueSegment : public AbstractSegment {
   size_t estimate_memory_usage() const final;
 
  protected:
-  std::vector<T> data;
+  std::vector<T> _values;
 };
 
 }  // namespace opossum

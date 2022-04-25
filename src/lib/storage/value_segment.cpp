@@ -14,24 +14,24 @@ namespace opossum {
 
 template <typename T>
 AllTypeVariant ValueSegment<T>::operator[](const ChunkOffset chunk_offset) const {
-  return AllTypeVariant(data[chunk_offset]);
+  return AllTypeVariant(_values[chunk_offset]);
 }
 
 template <typename T>
 void ValueSegment<T>::append(const AllTypeVariant& val) {
   // TODO: Max size of vector
   auto containedValue = type_cast<T>(val);
-  data.push_back(containedValue);
+  _values.push_back(containedValue);
 }
 
 template <typename T>
 ChunkOffset ValueSegment<T>::size() const {
-  return data.size();
+  return _values.size();
 }
 
 template <typename T>
 const std::vector<T>& ValueSegment<T>::values() const {
-  return data;
+  return _values;
 }
 
 template <typename T>
