@@ -15,26 +15,29 @@
 namespace opossum {
 
 void Chunk::add_segment(const std::shared_ptr<AbstractSegment> segment) {
-  // Implementation goes here
+  this->segments.push_back(segment);
 }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  // Implementation goes here
+  Assert(values.size() == this->column_count(), "The values to append have the same count as columns");
+  for (size_t index = 0; index < values.size(); ++index) {
+    this->segments.at(index)->append(values[index]);
+  }
 }
 
 std::shared_ptr<AbstractSegment> Chunk::get_segment(const ColumnID column_id) const {
-  // Implementation goes here
-  return nullptr;
+  return this->segments.at(column_id);
 }
 
 ColumnCount Chunk::column_count() const {
-  // Implementation goes here
-  return ColumnCount{0};
+  return ColumnCount{this->segments.size()};
 }
 
 ChunkOffset Chunk::size() const {
-  // Implementation goes here
-  return 0;
+  if(this->segments.empty()) {
+    return 0;
+  }
+  return this->segments[0]->size();
 }
 
 }  // namespace opossum
