@@ -19,7 +19,7 @@ void Chunk::add_segment(const std::shared_ptr<AbstractSegment> segment) {
 }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  Assert(values.size() == this->column_count(), "The values to append have the same count as columns");
+  DebugAssert(values.size() == this->column_count(), "The values to append have the same count as columns");
   for (size_t index = 0; index < values.size(); ++index) {
     this->segments.at(index)->append(values[index]);
   }
