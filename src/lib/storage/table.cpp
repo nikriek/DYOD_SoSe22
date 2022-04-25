@@ -18,74 +18,77 @@
 
 namespace opossum {
 
-Table::Table(const ChunkOffset target_chunk_size) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
-}
+Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); };
 
 void Table::add_column(const std::string& name, const std::string& type) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  _column_names.push_back(name);
+  _column_types.push_back(type);
+    
+  resolve_data_type(type, [&_chunks = _chunks](auto type) {
+    using Type = typename decltype(type)::type;
+    auto new_segment = std::make_shared<ValueSegment<Type>>();
+    _chunks.back().add_segment(new_segment);
+  });
 }
 
 void Table::append(const std::vector<AllTypeVariant>& values) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  if(_chunks.back().size() == _target_chunk_size) {
+    create_new_chunk();
+  }
+  _chunks.back().append(values);
 }
 
 void Table::create_new_chunk() {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  auto& new_chunk = _chunks.emplace_back();
+  for(const auto& type : _column_types) {
+    resolve_data_type(type, [&new_chunk](auto type) {
+      using Type = typename decltype(type)::type;
+      auto new_segment = std::make_shared<ValueSegment<Type>>();
+      new_chunk.add_segment(new_segment);
+    });
+  }
 }
 
 ColumnCount Table::column_count() const {
-  // Implementation goes here
-  return ColumnCount{0};
+  return ColumnCount{_column_names.size()};
 }
 
 ChunkOffset Table::row_count() const {
-  // Implementation goes here
-  return 0;
+  // Calculate the count of all full chunks multiplied by the max size
+  // and then add the size of the last, incomplete chunk
+  return ChunkOffset{(chunk_count() - 1) * _target_chunk_size + _chunks.back().size() };
 }
 
 ChunkID Table::chunk_count() const {
   // Implementation goes here
-  return ChunkID{0};
+  return ChunkID{_chunks.size()};
 }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
-  // Implementation goes here
-  return ColumnID{0};
+  // Since this method is only used for debugging, we are fine with a linear
+  // search in the column name list. Otherwise, we would need different
+  // data structures which are not useful and have overhead in a prod release. 
+  // Linear search shouldn't be distinguishably slow on small vectors, anyways
+  auto pos =
+      std::distance(_column_names.cbegin(), std::find(_column_names.cbegin(), _column_names.cend(), column_name));
+  DebugAssert(pos < column_count(), "Column name was not found");
+  return ColumnID{pos};
 }
 
-ChunkOffset Table::target_chunk_size() const {
-  // Implementation goes here
-  return ChunkOffset{0};
-}
+ChunkOffset Table::target_chunk_size() const { return _target_chunk_size; }
 
-const std::vector<std::string>& Table::column_names() const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
-}
+const std::vector<std::string>& Table::column_names() const { return _column_names; }
 
-const std::string& Table::column_name(const ColumnID column_id) const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
-}
+const std::string& Table::column_name(const ColumnID column_id) const { return _column_names.at(column_id); }
 
-const std::string& Table::column_type(const ColumnID column_id) const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
-}
+const std::string& Table::column_type(const ColumnID column_id) const { return _column_types.at(column_id); }
 
 Chunk& Table::get_chunk(ChunkID chunk_id) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  return _chunks.at(chunk_id);
 }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  return _chunks.at(chunk_id);
 }
 
 void Table::compress_chunk(const ChunkID chunk_id) {

@@ -15,7 +15,11 @@
 namespace opossum {
 
 void Chunk::add_segment(const std::shared_ptr<AbstractSegment> segment) {
-  DebugAssert(std::all_of(_segments.begin(), _segments.end(), [&segment](std::shared_ptr<AbstractSegment> existing_segment){ return existing_segment->size() == segment->size(); }), "All segments should have the same size");
+  DebugAssert(std::all_of(_segments.cbegin(), _segments.cend(),
+                          [&segment](std::shared_ptr<AbstractSegment> existing_segment) {
+                            return existing_segment->size() == segment->size();
+                          }),
+              "All segments should have the same size");
   _segments.push_back(segment);
 }
 
@@ -26,16 +30,12 @@ void Chunk::append(const std::vector<AllTypeVariant>& values) {
   }
 }
 
-std::shared_ptr<AbstractSegment> Chunk::get_segment(const ColumnID column_id) const {
-  return _segments.at(column_id);
-}
+std::shared_ptr<AbstractSegment> Chunk::get_segment(const ColumnID column_id) const { return _segments.at(column_id); }
 
-ColumnCount Chunk::column_count() const {
-  return ColumnCount{_segments.size()};
-}
+ColumnCount Chunk::column_count() const { return ColumnCount{_segments.size()}; }
 
 ChunkOffset Chunk::size() const {
-  if(_segments.empty()) {
+  if (_segments.empty()) {
     return 0;
   }
   return _segments[0]->size();
