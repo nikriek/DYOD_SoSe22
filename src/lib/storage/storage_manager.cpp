@@ -40,7 +40,7 @@ void StorageManager::print(std::ostream& out) const {
     out << "Name: " << it->first << ", ";
     out << "#columns: " << it->second->column_count() << ", ";
     out << "#rows: " << it->second->row_count() << ", ";
-    out << "#chunks: " << it->second->chunk_count() << ", ";
+    out << "#chunks: " << it->second->chunk_count();
     out << std::endl;
   }
 }
