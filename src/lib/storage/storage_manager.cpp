@@ -14,38 +14,37 @@ StorageManager& StorageManager::get() {
   return instance;
 }
 
-void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
-}
+void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) { _tables[name] = table; }
 
 void StorageManager::drop_table(const std::string& name) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  // TODO: Any simpler method?
+  if (_tables.at(name)) {
+    _tables.erase(name);
+  }
 }
 
-std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const {
-  // Implementation goes here
-  return nullptr;
-}
+std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const { return _tables.at(name); }
 
-bool StorageManager::has_table(const std::string& name) const {
-  // Implementation goes here
-  return false;
-}
+bool StorageManager::has_table(const std::string& name) const { return _tables.contains(name); }
 
 std::vector<std::string> StorageManager::table_names() const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  std::vector<std::string> names;
+  for (auto const& table : _tables) {
+    names.push_back(table.first);
+  }
+  return names;
 }
 
 void StorageManager::print(std::ostream& out) const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  for (auto it = _tables.begin(); it != _tables.end(); ++it) {
+    out << "Name: " << it->first << ", ";
+    out << "#columns: " << it->second->column_count() << ", ";
+    out << "#rows: " << it->second->row_count() << ", ";
+    out << "#chunks: " << it->second->chunk_count() << ", ";
+    out << std::endl;
+  }
 }
 
-void StorageManager::reset() {
-  // Implementation goes here
-}
+void StorageManager::reset() { _tables.clear(); }
 
 }  // namespace opossum

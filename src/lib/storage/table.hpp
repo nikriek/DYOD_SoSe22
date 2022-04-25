@@ -77,7 +77,7 @@ class Table : private Noncopyable {
   // Map column_id as index to data types
   std::vector<std::string> _column_types;
 
-  std::vector<Chunk> _chunks; // TODO: Use pointers?
+  std::vector<Chunk> _chunks;  // TODO: Use pointers?
 
   const ChunkOffset _target_chunk_size;
 };
