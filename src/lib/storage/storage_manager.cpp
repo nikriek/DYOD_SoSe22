@@ -17,7 +17,6 @@ StorageManager& StorageManager::get() {
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) { _tables[name] = table; }
 
 void StorageManager::drop_table(const std::string& name) {
-  // TODO: Any simpler method?
   if (_tables.at(name)) {
     _tables.erase(name);
   }

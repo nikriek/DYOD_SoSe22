@@ -77,7 +77,7 @@ class Table : private Noncopyable {
   // Map column_id as index to data types
   std::vector<std::string> _column_types;
 
-  // Store a list of chunks. Chunks point to individual segments TODO: This is inconsistent
+  // Store a list of chunks. Chunks point to individual segments
   std::vector<std::shared_ptr<Chunk>> _chunks;
 
   // Maximum chunk size passed by constructor
