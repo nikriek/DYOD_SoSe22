@@ -27,25 +27,24 @@ void Table::add_column(const std::string& name, const std::string& type) {
 
   resolve_data_type(type, [&_chunks = _chunks](auto type) {
     using Type = typename decltype(type)::type;
-    auto new_segment = std::make_shared<ValueSegment<Type>>();
-    _chunks.back().add_segment(new_segment);
+    _chunks.back()->add_segment(std::make_shared<ValueSegment<Type>>());
   });
 }
 
 void Table::append(const std::vector<AllTypeVariant>& values) {
-  if (_chunks.back().size() == _target_chunk_size) {
+  if (_chunks.back()->size() == _target_chunk_size) {
     create_new_chunk();
   }
-  _chunks.back().append(values);
+  _chunks.back()->append(values);
 }
 
 void Table::create_new_chunk() {
-  auto& new_chunk = _chunks.emplace_back();
+  auto new_chunk = std::make_shared<Chunk>();
+  _chunks.push_back(new_chunk);
   for (const auto& type : _column_types) {
     resolve_data_type(type, [&new_chunk](auto type) {
       using Type = typename decltype(type)::type;
-      auto new_segment = std::make_shared<ValueSegment<Type>>();
-      new_chunk.add_segment(new_segment);
+      new_chunk->add_segment(std::make_shared<ValueSegment<Type>>());
     });
   }
 }
@@ -53,9 +52,9 @@ void Table::create_new_chunk() {
 ColumnCount Table::column_count() const { return ColumnCount{_column_names.size()}; }
 
 ChunkOffset Table::row_count() const {
-  // Calculate the count of all full chunks multiplied by the max size
+  // Calculate the count of all full chunks multiplied by the target/max chunk size
   // and then add the size of the last, incomplete chunk
-  return ChunkOffset{(chunk_count() - 1) * _target_chunk_size + _chunks.back().size()};
+  return ChunkOffset{(chunk_count() - 1) * _target_chunk_size + _chunks.back()->size()};
 }
 
 ChunkID Table::chunk_count() const { return ChunkID{_chunks.size()}; }
@@ -79,9 +78,9 @@ const std::string& Table::column_name(const ColumnID column_id) const { return _
 
 const std::string& Table::column_type(const ColumnID column_id) const { return _column_types.at(column_id); }
 
-Chunk& Table::get_chunk(ChunkID chunk_id) { return _chunks.at(chunk_id); }
+Chunk& Table::get_chunk(ChunkID chunk_id) { return *(_chunks.at(chunk_id)); }
 
-const Chunk& Table::get_chunk(ChunkID chunk_id) const { return _chunks.at(chunk_id); }
+const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *(_chunks.at(chunk_id)); }
 
 void Table::compress_chunk(const ChunkID chunk_id) {
   // Implementation goes here

@@ -37,7 +37,7 @@ std::vector<std::string> StorageManager::table_names() const {
 }
 
 void StorageManager::print(std::ostream& out) const {
-  for (auto it = _tables.begin(); it != _tables.end(); ++it) {
+  for (auto it = _tables.begin(), end = _tables.end(); it != end; ++it) {
     out << "Name: " << it->first << ", ";
     out << "#columns: " << it->second->column_count() << ", ";
     out << "#rows: " << it->second->row_count() << ", ";

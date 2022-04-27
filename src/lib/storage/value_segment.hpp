@@ -31,6 +31,7 @@ class ValueSegment : public AbstractSegment {
   size_t estimate_memory_usage() const final;
 
  protected:
+  // Stores a list of actual values of template type T
   std::vector<T> _values;
 };
 
