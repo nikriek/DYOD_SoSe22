@@ -14,7 +14,7 @@ namespace opossum {
 
 template <typename T>
 AllTypeVariant ValueSegment<T>::operator[](const ChunkOffset chunk_offset) const {
-  return AllTypeVariant(_values[chunk_offset]);
+  return _values.at(chunk_offset);
 }
 
 template <typename T>
@@ -34,7 +34,9 @@ const std::vector<T>& ValueSegment<T>::values() const {
 
 template <typename T>
 size_t ValueSegment<T>::estimate_memory_usage() const {
-  return sizeof(T) * size();
+  // Size would work, too, but capacity is better because it
+  // also catches the potential allocated space by the vector
+  return sizeof(T) * _values.capacity();
 }
 
 // Macro to instantiate the following classes:

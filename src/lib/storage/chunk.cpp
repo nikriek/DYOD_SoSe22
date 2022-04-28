@@ -38,7 +38,7 @@ ChunkOffset Chunk::size() const {
   if (_segments.empty()) {
     return 0;
   }
-  return _segments[0]->size();
+  return _segments.front()->size();
 }
 
 }  // namespace opossum

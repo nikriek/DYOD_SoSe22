@@ -17,9 +17,9 @@ StorageManager& StorageManager::get() {
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) { _tables[name] = table; }
 
 void StorageManager::drop_table(const std::string& name) {
-  if (_tables.at(name)) {
-    _tables.erase(name);
-  }
+  // Throws an exception if the key is not found
+  Assert(_tables.contains(name), "Should contain table with given name");
+  _tables.erase(name);
 }
 
 std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const { return _tables.at(name); }
@@ -45,6 +45,11 @@ void StorageManager::print(std::ostream& out) const {
   }
 }
 
-void StorageManager::reset() { _tables.clear(); }
+void StorageManager::reset() { 
+  // The documentation says "Deletes the entire StorageManager and creates a new one, 
+  // used especially in tests.". Clearing the tables does reset the data, but keeps
+  // the address of the singleton. Resetting a static doesn't seem to be possible
+  _tables.clear();
+}
 
 }  // namespace opossum

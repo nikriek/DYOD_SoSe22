@@ -9,6 +9,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 #include "value_segment.hpp"
 
@@ -21,9 +22,10 @@ namespace opossum {
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); }
 
 void Table::add_column(const std::string& name, const std::string& type) {
+  // We only allow adding columns for empty tables
+  Assert(row_count() == 0, "Adding a column is only allowed for empty tables");
   _column_names.push_back(name);
   _column_types.push_back(type);
-
   resolve_data_type(type, [&_chunks = _chunks](auto type) {
     using Type = typename decltype(type)::type;
     _chunks.back()->add_segment(std::make_shared<ValueSegment<Type>>());
@@ -31,7 +33,7 @@ void Table::add_column(const std::string& name, const std::string& type) {
 }
 
 void Table::append(const std::vector<AllTypeVariant>& values) {
-  if (_chunks.back()->size() == _target_chunk_size) {
+  if (_chunks.back()->size() >= _target_chunk_size) {
     create_new_chunk();
   }
   _chunks.back()->append(values);
