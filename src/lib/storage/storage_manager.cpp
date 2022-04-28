@@ -47,9 +47,9 @@ void StorageManager::print(std::ostream& out) const {
 
 void StorageManager::reset() { 
   // The documentation says "Deletes the entire StorageManager and creates a new one, 
-  // used especially in tests.". Clearing the tables does reset the data, but keeps
-  // the address of the singleton. Resetting a static doesn't seem to be possible
-  _tables.clear();
+  // used especially in tests.". Clearing the vector with clear() would be fine,
+  // but assigning a new storage manager to the reference also works.
+  StorageManager::get() = StorageManager();
 }
 
 }  // namespace opossum
