@@ -55,6 +55,8 @@ ColumnCount Table::column_count() const { return ColumnCount{_column_names.size(
 ChunkOffset Table::row_count() const {
   // Calculate the count of all full chunks multiplied by the target/max chunk size
   // and then add the size of the last, incomplete chunk
+  // Since our knowledge about chunks is still limited, we assume that this is the right
+  // method for now. This is up to change later.
   return ChunkOffset{(chunk_count() - 1) * _target_chunk_size + _chunks.back()->size()};
 }
 

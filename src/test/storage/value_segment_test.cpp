@@ -70,9 +70,9 @@ TEST_F(StorageValueSegmentTest, Values) {
 
   ASSERT_EQ(values.size(), expected_variants.size())
       << "Vectors int_value_segment.values() and expected_variants are of unequal length";
-  for (size_t i = 0; i < values.size(); ++i) {
-    EXPECT_EQ(values[i], expected_variants[i])
-        << "Vectors int_value_segment.values() and expected_variants differ at index " << i;
+  for (size_t index = 0; index < values.size(); ++index) {
+    EXPECT_EQ(values[index], expected_variants[index])
+        << "Vectors int_value_segment.values() and expected_variants differ at index " << index;
   }
 }
 

@@ -59,9 +59,9 @@ TEST_F(StorageStorageManagerTest, TableNames) {
 
   ASSERT_EQ(table_names.size(), expected_table_names.size())
       << "Vectors table_names and expected_table_names are of unequal length";
-  for (size_t i = 0; i < table_names.size(); ++i) {
-    EXPECT_EQ(table_names[i], expected_table_names[i])
-        << "Vectors table_names and expected_table_names differ at index " << i;
+  for (size_t index = 0; index < table_names.size(); ++index) {
+    EXPECT_EQ(table_names[index], expected_table_names[index])
+        << "Vectors table_names and expected_table_names differ at index " << index;
   }
 }
 
