@@ -1,0 +1,38 @@
+name: Lint, Format and Test
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Lint
+      run: ./scripts/lint.sh
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Format
+      run: ./scripts/format.sh
+  test:
+    runs-on: ubuntu-latest
+    env:
+      build_dir: ./cmake-build-debug  
+      OPOSSUM_HEADLESS_SETUP: true
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: ./install_dependencies.sh
+    - name: CMake
+      run: cmake "-B./$build_dir"
+    - name: Make
+      run: make -C ./$build_dir
+    - name: Test
+      run: $build_dir/hyriseTest
+    - name: Coverage
+      run: ./scripts/coverage.sh $build_dir
