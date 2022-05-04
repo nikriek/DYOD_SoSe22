@@ -29,9 +29,9 @@ jobs:
     - name: Install dependencies
       run: ./install_dependencies.sh
     - name: CMake
-      run: cmake "-B./$build_dir"
+      run: cmake "-B$build_dir"
     - name: Make
-      run: make -C ./$build_dir
+      run: make -C $build_dir
     - name: Test
       run: $build_dir/hyriseTest
     - name: Coverage
