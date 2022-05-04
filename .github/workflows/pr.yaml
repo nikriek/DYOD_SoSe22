@@ -20,7 +20,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      build_dir: ./cmake-build-debug  
+      build_dir: cmake-build-debug  
       OPOSSUM_HEADLESS_SETUP: true
     steps:
     - uses: actions/checkout@v2
@@ -37,7 +37,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     env:
-      build_dir: ./cmake-build-debug  
+      build_dir: cmake-build-debug  
       OPOSSUM_HEADLESS_SETUP: true
     steps:
     - uses: actions/checkout@v2
@@ -54,7 +54,7 @@ jobs:
   addr_ub_sanitization:
     runs-on: ubuntu-latest
     env:
-      build_dir: ./cmake-build-debug  
+      build_dir: cmake-build-debug  
       OPOSSUM_HEADLESS_SETUP: true
       LSAN_OPTIONS: suppressions=asan-ignore.txt
     steps:
@@ -72,7 +72,7 @@ jobs:
   thread_sanitization:
     runs-on: ubuntu-latest
     env:
-      build_dir: ./cmake-build-debug  
+      build_dir: cmake-build-debug  
       OPOSSUM_HEADLESS_SETUP: true
       LSAN_OPTIONS: suppressions=asan-ignore.txt
     steps:
