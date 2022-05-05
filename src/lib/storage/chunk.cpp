@@ -32,7 +32,7 @@ void Chunk::append(const std::vector<AllTypeVariant>& values) {
 
 std::shared_ptr<AbstractSegment> Chunk::get_segment(const ColumnID column_id) const { return _segments.at(column_id); }
 
-ColumnCount Chunk::column_count() const { return ColumnCount{_segments.size()}; }
+ColumnCount Chunk::column_count() const { return (ColumnCount)_segments.size(); }
 
 ChunkOffset Chunk::size() const {
   if (_segments.empty()) {

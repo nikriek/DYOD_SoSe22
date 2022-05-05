@@ -87,6 +87,8 @@ std::shared_ptr<const Chunk> Table::get_chunk(ChunkID chunk_id) const { return _
 
 void Table::compress_chunk(const ChunkID chunk_id) {
   // Implementation goes here
+  // This should work with concurrent access
+  // TODO Write test, maybe alreay with concurrent access
   Fail("Implementation is missing.");
 }
 

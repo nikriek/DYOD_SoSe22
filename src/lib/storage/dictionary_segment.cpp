@@ -34,8 +34,7 @@ const std::vector<T>& DictionarySegment<T>::dictionary() const {
 
 template <typename T>
 std::shared_ptr<const AbstractAttributeVector> DictionarySegment<T>::attribute_vector() const {
-  // Implementation goes here
-  return nullptr;
+  return _attribute_vector;
 }
 
 template <typename T>
@@ -70,14 +69,12 @@ ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
 
 template <typename T>
 ChunkOffset DictionarySegment<T>::unique_values_count() const {
-  // Implementation goes here
-  return ChunkOffset{};
+  return (ChunkOffset)_dictionary.size();
 }
 
 template <typename T>
 ChunkOffset DictionarySegment<T>::size() const {
-  // Implementation goes here
-  return ChunkOffset{};
+  return (ChunkOffset)_attribute_vector->size();
 }
 
 template <typename T>
