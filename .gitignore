@@ -35,6 +35,7 @@ provider.hpp
 # CLion cmake directory
 cmake_build_*
 gcoverage
+cmake-build-*
 
 # llvm coverage information
 default.profdata
