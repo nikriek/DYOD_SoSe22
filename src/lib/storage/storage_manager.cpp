@@ -45,8 +45,8 @@ void StorageManager::print(std::ostream& out) const {
   }
 }
 
-void StorageManager::reset() { 
-  // The documentation says "Deletes the entire StorageManager and creates a new one, 
+void StorageManager::reset() {
+  // The documentation says "Deletes the entire StorageManager and creates a new one,
   // used especially in tests.". Clearing the vector with clear() would be fine,
   // but assigning a new storage manager to the reference also works.
   StorageManager::get() = StorageManager();
