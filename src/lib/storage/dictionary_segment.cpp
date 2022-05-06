@@ -1,6 +1,6 @@
 #include "dictionary_segment.hpp"
+#include <algorithm>
 #include <set>
-
 #include "fixed_width_attribute_vector.hpp"
 #include "type_cast.hpp"
 #include "utils/assert.hpp"
@@ -77,25 +77,25 @@ const T DictionarySegment<T>::value_of_value_id(const ValueID value_id) const {
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const T value) const {
   auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), value);
-  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
+  return lower_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), lower_bound) : INVALID_VALUE_ID;
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
   auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
+  return lower_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), lower_bound) : INVALID_VALUE_ID;
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const T value) const {
   auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), value);
-  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
+  return upper_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), upper_bound) : INVALID_VALUE_ID;
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
   auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
+  return upper_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), upper_bound) : INVALID_VALUE_ID;
 }
 
 template <typename T>
