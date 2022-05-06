@@ -13,17 +13,15 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   Assert(abstract_segment->size() > 0, "Input segment must contain values.");
 
   const auto value_segment = std::static_pointer_cast<ValueSegment<T>>(abstract_segment);
-  std::set<T> unique_set;
+  std::set<T> distinct_values;
 
   for (const auto& value : value_segment->values()) {
-    if (unique_set.find(value) == unique_set.end()) {
-      unique_set.insert(value);
-    }
+    distinct_values.insert(value);
   }
 
   // Populate the _dictionary with the unique values.
-  _dictionary.reserve(unique_set.size());
-  std::copy(unique_set.begin(), unique_set.end(), std::back_inserter(_dictionary));
+  _dictionary.reserve(distinct_values.size());
+  std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
   if (_dictionary.size() < std::numeric_limits<uint8_t>::max()) {
