@@ -48,7 +48,7 @@ jobs:
     - name: CMake
       run: cmake "-B$build_dir"
     - name: Make
-      run: make -C $build_dir
+      run: make -C $build_dir hyriseCoverage
     - name: Coverage
       run: ./scripts/coverage.sh $build_dir
   addr_ub_sanitization:
