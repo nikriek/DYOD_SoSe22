@@ -8,7 +8,7 @@ namespace opossum {
 template <typename T>
 class FixedWidthAttributeVector : public AbstractAttributeVector {
  public:
-  FixedWidthAttributeVector(const size_t size);
+  explicit FixedWidthAttributeVector(const size_t size);
   // returns the value id at a given position
   ValueID get(const size_t index) const override;
 
