@@ -70,6 +70,16 @@ TEST_F(StorageDictionarySegmentTest, LowerUpperBound) {
   EXPECT_EQ(dict_segment->upper_bound(15), INVALID_VALUE_ID);
 }
 
-// TODO(student): You should add some more tests here (full coverage would be appreciated) and possibly in other files.
+TEST_F(StorageDictionarySegmentTest, Append) {
+  Fail("Append should fail with exception");
+}
+
+TEST_F(StorageDictionarySegmentTest, EstimateMemoryUsage) {
+  Fail("Missing");
+}
+
+TEST_F(StorageDictionarySegmentTest, AdaptiveAttributeVectorSize) {
+  Fail("Test that a different value segemtn size doesn't linearly scale with estiamted memory");
+}
 
 }  // namespace opossum

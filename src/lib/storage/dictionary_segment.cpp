@@ -12,6 +12,7 @@ template <typename T>
 DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& abstract_segment) {
   Assert(abstract_segment->size() > 0, "Input segment must contain values.");
 
+  // For now, we can assume to only receive a ValueSegment
   const auto value_segment = std::static_pointer_cast<ValueSegment<T>>(abstract_segment);
   std::set<T> distinct_values;
 
@@ -33,8 +34,10 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   }
 
   // Populate the _attribute_vector with the offsets.
+  const auto values = value_segment->values();
   for (size_t i = 0; i < value_segment->size(); ++i) {
-    auto find_iterator = std::find(_dictionary.cbegin(), _dictionary.cend(), value_segment->values()[i]);
+    // TODO(nikriek): Do binary search with lower bound/upper bound
+    auto find_iterator = std::find(_dictionary.cbegin(), _dictionary.cend(), values[i]);
     _attribute_vector->set(i, (ValueID)std::distance(_dictionary.cbegin(), find_iterator));
   }
 }
@@ -48,7 +51,7 @@ AllTypeVariant DictionarySegment<T>::operator[](const ChunkOffset chunk_offset) 
 template <typename T>
 T DictionarySegment<T>::get(const ChunkOffset chunk_offset) const {
   const auto dictionary_offset = _attribute_vector->get(chunk_offset);
-  Assert(dictionary_offset <= _dictionary.size(), "");
+  Assert(dictionary_offset <= _dictionary.size(), "cannot find value at given index");
   return _dictionary[dictionary_offset];
 }
 
@@ -75,25 +78,37 @@ const T DictionarySegment<T>::value_of_value_id(const ValueID value_id) const {
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const T value) const {
   auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), value);
-  return lower_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), lower_bound) : INVALID_VALUE_ID;
+  if (lower_bound == _dictionary.end()) {
+    return INVALID_VALUE_ID;
+  }
+  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
   auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  return lower_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), lower_bound) : INVALID_VALUE_ID;
+  if (lower_bound == _dictionary.end()) {
+    return INVALID_VALUE_ID;
+  }
+  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const T value) const {
   auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), value);
-  return upper_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), upper_bound) : INVALID_VALUE_ID;
+  if (upper_bound == _dictionary.end()) {
+    return INVALID_VALUE_ID;
+  }
+  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
 }
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
   auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  return upper_bound != _dictionary.end() ? (ValueID)std::distance(_dictionary.begin(), upper_bound) : INVALID_VALUE_ID;
+  if (upper_bound == _dictionary.end()) {
+    return INVALID_VALUE_ID;
+  }
+  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
 }
 
 template <typename T>

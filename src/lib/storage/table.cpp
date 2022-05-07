@@ -87,11 +87,11 @@ std::shared_ptr<Chunk> Table::get_chunk(ChunkID chunk_id) { return _chunks.at(ch
 std::shared_ptr<const Chunk> Table::get_chunk(ChunkID chunk_id) const { return _chunks.at(chunk_id); }
 
 void Table::compress_chunk(const ChunkID chunk_id) {
-  auto input_chunk = get_chunk(chunk_id);
-  auto column_count = input_chunk->column_count();
+  const auto input_chunk = get_chunk(chunk_id);
+  const auto column_count = input_chunk->column_count();
   std::vector<std::thread> threads;
   threads.reserve(column_count);
-  auto compressed_chunk = std::make_shared<Chunk>();
+  const auto compressed_chunk = std::make_shared<Chunk>();
 
   for (size_t i = 0; i < column_count; ++i) {
     const auto segment = input_chunk->get_segment((ColumnID)i);

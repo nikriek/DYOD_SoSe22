@@ -71,4 +71,12 @@ TEST_F(StorageTableTest, GetColumnIdByName) {
 
 TEST_F(StorageTableTest, GetChunkSize) { EXPECT_EQ(table.target_chunk_size(), 2u); }
 
+TEST_F(StorageTableTest, CompressChunk) {
+  Fail("Missing");
+}
+
+TEST_F(StorageTableTest, CompressChunkConcurrent) {
+  Fail("Missing");
+}
+
 }  // namespace opossum
