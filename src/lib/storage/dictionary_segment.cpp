@@ -25,17 +25,20 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
-  if (_dictionary.size() < std::numeric_limits<uint8_t>::max()) {
+  if (_dictionary.size() <= std::numeric_limits<uint8_t>::max()) {
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint8_t>>(value_segment->size());
-  } else if (_dictionary.size() < std::numeric_limits<uint16_t>::max()) {
+  } else if (_dictionary.size() <= std::numeric_limits<uint16_t>::max()) {
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint16_t>>(value_segment->size());
-  } else {
+  } else if (_dictionary.size() <= std::numeric_limits<uint32_t>::max()) {
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint32_t>>(value_segment->size());
+  } else {
+    Fail("Cannot instantitiate")
   }
 
   // Populate the _attribute_vector with the offsets.
   const auto values = value_segment->values();
   for (size_t i = 0; i < value_segment->size(); ++i) {
+    // Do binary search to find insert position
     auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[i]);
     _attribute_vector->set(i, (ValueID)std::distance(_dictionary.cbegin(), find_iterator));
   }

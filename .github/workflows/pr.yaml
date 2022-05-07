@@ -19,6 +19,8 @@ jobs:
       run: ./scripts/format.sh
   test:
     runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
     env:
       build_dir: cmake-build-debug  
       OPOSSUM_HEADLESS_SETUP: true
@@ -26,8 +28,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Install dependencies
-      run: ./install_dependencies.sh
     - name: CMake
       run: cmake "-B$build_dir"
     - name: Make
