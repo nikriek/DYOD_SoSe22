@@ -36,15 +36,14 @@ jobs:
       run: $build_dir/hyriseTest
   coverage:
     runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
     env:
       build_dir: cmake-build-debug  
-      OPOSSUM_HEADLESS_SETUP: true
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Install dependencies
-      run: ./install_dependencies.sh
     - name: CMake
       run: cmake "-B$build_dir"
     - name: Make
@@ -53,16 +52,15 @@ jobs:
       run: ./scripts/coverage.sh $build_dir
   addr_ub_sanitization:
     runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
     env:
       build_dir: cmake-build-debug  
-      OPOSSUM_HEADLESS_SETUP: true
       LSAN_OPTIONS: suppressions=asan-ignore.txt
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Install dependencies
-      run: ./install_dependencies.sh
     - name: CMake
       run: cmake "-B$build_dir" "-DENABLE_ADDR_UB_SANITIZATION=ON"
     - name: Make
@@ -71,16 +69,15 @@ jobs:
       run: $build_dir/hyriseTest
   thread_sanitization:
     runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
     env:
       build_dir: cmake-build-debug  
-      OPOSSUM_HEADLESS_SETUP: true
       LSAN_OPTIONS: suppressions=asan-ignore.txt
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Install dependencies
-      run: ./install_dependencies.sh
     - name: CMake
       run: cmake "-B$build_dir" "-DENABLE_THREAD_SANITIZATION=ON"
     - name: Make
