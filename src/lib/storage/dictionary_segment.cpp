@@ -32,7 +32,7 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   } else if (_dictionary.size() <= std::numeric_limits<uint32_t>::max()) {
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint32_t>>(value_segment->size());
   } else {
-    Fail("Cannot instantitiate")
+    Fail("Cannot instantitiate");
   }
 
   // Populate the _attribute_vector with the offsets.
