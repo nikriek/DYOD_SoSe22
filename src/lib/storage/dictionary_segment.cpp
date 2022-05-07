@@ -36,8 +36,7 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   // Populate the _attribute_vector with the offsets.
   const auto values = value_segment->values();
   for (size_t i = 0; i < value_segment->size(); ++i) {
-    // TODO(nikriek): Do binary search with lower bound/upper bound
-    auto find_iterator = std::find(_dictionary.cbegin(), _dictionary.cend(), values[i]);
+    auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[i]);
     _attribute_vector->set(i, (ValueID)std::distance(_dictionary.cbegin(), find_iterator));
   }
 }
