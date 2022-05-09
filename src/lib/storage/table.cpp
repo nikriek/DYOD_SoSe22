@@ -92,21 +92,26 @@ void Table::compress_chunk(const ChunkID chunk_id) {
   std::vector<std::thread> threads;
   threads.reserve(column_count);
   const auto compressed_chunk = std::make_shared<Chunk>();
+  std::vector<std::shared_ptr<AbstractSegment>> compressed_segments(column_count);
 
-  for (size_t i = 0; i < column_count; ++i) {
-    const auto segment = input_chunk->get_segment((ColumnID)i);
-    resolve_data_type(_column_types[i], [&](auto type) {
-      using DataType = typename decltype(type)::type;
-
-      threads.push_back(std::thread([&segment, &compressed_chunk] {
-        compressed_chunk->add_segment(std::make_shared<DictionarySegment<DataType>>(segment));
-      }));
-    });
+  for (ColumnID index{0}; index < column_count; ++index) {
+    const auto segment = input_chunk->get_segment(index);
+    threads.push_back(std::thread([&] {
+      resolve_data_type(_column_types[index], [&](auto type) {
+        using DataType = typename decltype(type)::type;
+        compressed_segments[index] = std::make_shared<DictionarySegment<DataType>>(segment);
+      });
+    }));
   }
 
   for (auto& thread : threads) {
     thread.join();
   }
+
+  for (size_t index = 0; index < column_count; ++index) {
+    compressed_chunk->add_segment(compressed_segments[index]);
+  }
+  _chunks[chunk_id] = compressed_chunk;
 }
 
 }  // namespace opossum

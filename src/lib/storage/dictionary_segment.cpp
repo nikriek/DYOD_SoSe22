@@ -5,38 +5,30 @@
 #include "type_cast.hpp"
 #include "utils/assert.hpp"
 #include "value_segment.hpp"
+#include "resolve_type.hpp"
 
 namespace opossum {
 
 template <typename T>
 DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& abstract_segment) {
-  Assert(abstract_segment->size() > 0, "Input segment must contain values.");
+  DebugAssert(abstract_segment->size() > 0, "Input segment must contain values.");
 
   // For now, we can assume to only receive a ValueSegment
   const auto value_segment = std::static_pointer_cast<ValueSegment<T>>(abstract_segment);
-  std::set<T> distinct_values;
-
-  for (const auto& value : value_segment->values()) {
-    distinct_values.insert(value);
-  }
+  const auto values = value_segment->values();
+  std::set<T> distinct_values(values.begin(), values.end());
 
   // Populate the _dictionary with the unique values.
   _dictionary.reserve(distinct_values.size());
   std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
-  if (_dictionary.size() <= std::numeric_limits<uint8_t>::max()) {
-    _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint8_t>>(value_segment->size());
-  } else if (_dictionary.size() <= std::numeric_limits<uint16_t>::max()) {
-    _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint16_t>>(value_segment->size());
-  } else if (_dictionary.size() <= std::numeric_limits<uint32_t>::max()) {
-    _attribute_vector = std::make_shared<FixedWidthAttributeVector<uint32_t>>(value_segment->size());
-  } else {
-    Fail("Cannot instantitiate");
-  }
+  resolve_fixed_width_integer_type(value_segment->size(), [&](auto type){
+    using DataType = typename decltype(type)::type;
+    _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(value_segment->size());
+  });
 
   // Populate the _attribute_vector with the offsets.
-  const auto values = value_segment->values();
   for (size_t i = 0; i < value_segment->size(); ++i) {
     // Do binary search to find insert position
     auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[i]);
@@ -79,7 +71,7 @@ const T DictionarySegment<T>::value_of_value_id(const ValueID value_id) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const T value) const {
-  auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), value);
+  const auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), value);
   if (lower_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
@@ -88,7 +80,7 @@ ValueID DictionarySegment<T>::lower_bound(const T value) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
-  auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
+  const auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
   if (lower_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
@@ -97,7 +89,7 @@ ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const T value) const {
-  auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), value);
+  const auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), value);
   if (upper_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
@@ -106,7 +98,7 @@ ValueID DictionarySegment<T>::upper_bound(const T value) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
-  auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
+  const auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
   if (upper_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }

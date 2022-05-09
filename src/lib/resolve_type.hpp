@@ -78,4 +78,18 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
   });
 }
 
+template<typename SizeType, typename Functor> 
+void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
+  if (size <= std::numeric_limits<uint8_t>::max()) {
+    func(boost::hana::type_c<uint8_t>);
+  } else if (size<= std::numeric_limits<uint16_t>::max()) {
+    func(boost::hana::type_c<uint16_t>);
+  } else if (size<= std::numeric_limits<uint32_t>::max()) {
+    func(boost::hana::type_c<uint32_t>);
+  } else {
+    Fail("Failed to resolve an appropriate data type for given size");
+  } 
+}
+
 }  // namespace opossum
+
