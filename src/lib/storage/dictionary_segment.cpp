@@ -23,7 +23,7 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
-  resolve_fixed_width_integer_type(value_segment->size(), [&](auto type){
+  resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(value_segment->size(), [&](auto type){
     using DataType = typename decltype(type)::type;
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(value_segment->size());
   });

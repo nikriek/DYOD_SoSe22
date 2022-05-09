@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -78,17 +79,36 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
   });
 }
 
-template<typename SizeType, typename Functor> 
+/**
+ * @brief Resolve a type which the size can fit into. Types are evaluated for their numeric max limit
+ * in the given order in the template. 
+ * 
+ * Example:
+ * 
+ * resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(size, [&](auto type){
+ *   using DataType = typename decltype(type)::type;
+ *   _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(size);
+ * });
+ * 
+ * @tparam HeadType First type to evaluate
+ * @tparam TailTypes Other types to evaluates
+ * @tparam SizeType Max 
+ * @tparam Functor 
+ * @param size Input size to fit in given data types
+ * @param func Function to call with a boost::hana::type_c
+ */
+template<typename HeadType, typename ...TailTypes, typename SizeType, typename Functor>
 void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
-  if (size <= std::numeric_limits<uint8_t>::max()) {
-    func(boost::hana::type_c<uint8_t>);
-  } else if (size<= std::numeric_limits<uint16_t>::max()) {
-    func(boost::hana::type_c<uint16_t>);
-  } else if (size<= std::numeric_limits<uint32_t>::max()) {
-    func(boost::hana::type_c<uint32_t>);
+  if (size < std::numeric_limits<HeadType>::max()) {
+    func(boost::hana::type_c<HeadType>);
+    return;
+  }
+
+  if constexpr (sizeof...(TailTypes) > 1) {
+     resolve_fixed_width_integer_type<TailTypes ... >(size, func);  
   } else {
-    Fail("Failed to resolve an appropriate data type for given size");
-  } 
+      Fail("Could not resolve fixed width integer type for given size");
+  }
 }
 
 }  // namespace opossum

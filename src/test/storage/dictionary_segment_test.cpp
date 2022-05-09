@@ -71,11 +71,33 @@ TEST_F(StorageDictionarySegmentTest, LowerUpperBound) {
 }
 
 TEST_F(StorageDictionarySegmentTest, Append) {
-  Fail("Append should fail with exception");
+  value_segment_int->append(2);
+
+  std::shared_ptr<AbstractSegment> segment;
+  resolve_data_type("int", [&](auto type) {
+    using Type = typename decltype(type)::type;
+    segment = std::make_shared<DictionarySegment<Type>>(value_segment_int);
+  });
+  auto dict_segment = std::dynamic_pointer_cast<DictionarySegment<int32_t>>(segment);
+  EXPECT_THROW(dict_segment->append(2), std::exception);
 }
 
 TEST_F(StorageDictionarySegmentTest, EstimateMemoryUsage) {
-  Fail("Missing");
+  value_segment_int->append(2);
+  value_segment_int->append(3);
+  value_segment_int->append(3);
+  value_segment_int->append(3);
+  value_segment_int->append(3);
+  value_segment_int->append(3);
+
+  std::shared_ptr<AbstractSegment> segment;
+  resolve_data_type("int", [&](auto type) {
+    using Type = typename decltype(type)::type;
+    segment = std::make_shared<DictionarySegment<Type>>(value_segment_int);
+  });
+  auto dict_segment = std::dynamic_pointer_cast<DictionarySegment<int32_t>>(segment);
+  // 4 bytes for int * 2 distinct values + 1 byte * 6 values in total
+  EXPECT_EQ(dict_segment->estimate_memory_usage(), 14u);
 }
 
 TEST_F(StorageDictionarySegmentTest, AdaptiveAttributeVectorSize) {
