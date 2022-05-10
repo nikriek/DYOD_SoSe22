@@ -1,6 +1,6 @@
 #include <memory>
 #include <string>
-
+#include <cmath>
 #include "../base_test.hpp"
 
 #include "resolve_type.hpp"
@@ -100,8 +100,37 @@ TEST_F(StorageDictionarySegmentTest, EstimateMemoryUsage) {
   EXPECT_EQ(dict_segment->estimate_memory_usage(), 14u);
 }
 
-TEST_F(StorageDictionarySegmentTest, AdaptiveAttributeVectorSize) {
-  Fail("Test that a different value segemtn size doesn't linearly scale with estiamted memory");
+class StorageDictionarySegmentAdaptiveAttributeVectorSizeTest : public ::testing::TestWithParam<std::tuple<int64_t, int64_t>> {
+  protected:
+    std::shared_ptr<ValueSegment<int32_t>> value_segment_int = std::make_shared<ValueSegment<int32_t>>();
+    std::shared_ptr<AbstractSegment> segment;
+};
+
+TEST_P(StorageDictionarySegmentAdaptiveAttributeVectorSizeTest, EstimateMemoryUsage) {
+  int distinct_value_count = std::get<0>(GetParam());
+  int expected_memory_usage = std::get<1>(GetParam());
+
+  for(auto index = int32_t{0}; index < distinct_value_count; ++index) {
+    value_segment_int->append(index);
+  }
+  resolve_data_type("int", [&](auto type) {
+    using Type = typename decltype(type)::type;
+    segment = std::make_shared<DictionarySegment<Type>>(value_segment_int);
+  });
+
+  EXPECT_EQ(segment->estimate_memory_usage(), expected_memory_usage); 
 }
 
+INSTANTIATE_TEST_SUITE_P(
+        EstimateMemoryUsage,
+        StorageDictionarySegmentAdaptiveAttributeVectorSizeTest,
+        ::testing::Values(
+          std::make_tuple(std::pow(2, 4), 80), // uint8_t
+          std::make_tuple(std::pow(2, 8) - 1, 1275),  // uint8_t
+          std::make_tuple(std::pow(2, 8), 1536),  // uint16_t
+          std::make_tuple(std::pow(2, 10), 6144), // uint16_t
+          std::make_tuple(std::pow(2, 16) - 1, 393210), // uint16_t
+          std::make_tuple(std::pow(2, 16), 524288), // uint32_t
+          std::make_tuple(std::pow(2, 19), 4194304) // uint32_t
+  ));
 }  // namespace opossum

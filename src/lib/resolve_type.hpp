@@ -100,7 +100,7 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
  */
 template<typename TypeHead, typename ...TypesTail, typename SizeType, typename Functor>
 void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
-  if (size < std::numeric_limits<TypeHead>::max()) {
+  if (size <= std::numeric_limits<TypeHead>::max()) {
     func(boost::hana::type_c<TypeHead>);
     return;
   }
