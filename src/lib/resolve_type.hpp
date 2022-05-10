@@ -83,7 +83,6 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
  * @brief Resolve a type which the size value can fit into. Types are evaluated for their numeric max limit
  * in the given order from the template parameters. 
  * 
- * 
  * Example:
  * 
  * resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(size, [&](auto type){
@@ -106,7 +105,7 @@ void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) 
   }
 
   if constexpr (sizeof...(TypesTail) > 0) {
-     resolve_fixed_width_integer_type<TypesTail ...>(size, func);  
+     resolve_fixed_width_integer_type<TypesTail ...>(size, func);
   } else {
       Fail("Could not resolve fixed width integer type for given size");
   }

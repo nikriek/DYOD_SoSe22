@@ -1,4 +1,3 @@
-#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -72,11 +71,22 @@ TEST_F(StorageTableTest, GetColumnIdByName) {
 TEST_F(StorageTableTest, GetChunkSize) { EXPECT_EQ(table.target_chunk_size(), 2u); }
 
 TEST_F(StorageTableTest, CompressChunk) {
-  Fail("Missing");
+  table.append({4, "Hello,"});
+  table.append({6, "world"});
+  table.append({3, "world"});
+  table.append({3, "world"});
+  table.append({3, "!"});
+  table.append({3, "!"});
+  table.append({3, "!"});
+  table.append({3, "!"});
+
+  table.compress_chunk(ChunkID{0});
+
+  const auto chunk = table.get_chunk(ChunkID{0});
 }
 
 TEST_F(StorageTableTest, CompressChunkConcurrent) {
-  Fail("Missing");
+  Fail("Test concurrent access")
 }
 
 }  // namespace opossum
