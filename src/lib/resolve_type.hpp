@@ -80,8 +80,9 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
 }
 
 /**
- * @brief Resolve a type which the size can fit into. Types are evaluated for their numeric max limit
- * in the given order in the template. 
+ * @brief Resolve a type which the size value can fit into. Types are evaluated for their numeric max limit
+ * in the given order from the template parameters. 
+ * 
  * 
  * Example:
  * 
@@ -90,22 +91,22 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
  *   _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(size);
  * });
  * 
- * @tparam HeadType First type to evaluate
- * @tparam TailTypes Other types to evaluates
- * @tparam SizeType Max 
- * @tparam Functor 
+ * @tparam TypeHead First type to evaluate
+ * @tparam TypesTail Other types to recursively evaluate
+ * @tparam SizeType Type of size to check 
+ * @tparam Functor Evaluation callback called with type boost::hana::type_c
  * @param size Input size to fit in given data types
  * @param func Function to call with a boost::hana::type_c
  */
-template<typename HeadType, typename ...TailTypes, typename SizeType, typename Functor>
+template<typename TypeHead, typename ...TypesTail, typename SizeType, typename Functor>
 void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
-  if (size < std::numeric_limits<HeadType>::max()) {
-    func(boost::hana::type_c<HeadType>);
+  if (size < std::numeric_limits<TypeHead>::max()) {
+    func(boost::hana::type_c<TypeHead>);
     return;
   }
 
-  if constexpr (sizeof...(TailTypes) > 1) {
-     resolve_fixed_width_integer_type<TailTypes ... >(size, func);  
+  if constexpr (sizeof...(TypesTail) > 0) {
+     resolve_fixed_width_integer_type<TypesTail ...>(size, func);  
   } else {
       Fail("Could not resolve fixed width integer type for given size");
   }
