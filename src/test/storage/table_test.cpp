@@ -86,7 +86,7 @@ TEST_F(StorageTableTest, CompressChunk) {
 }
 
 TEST_F(StorageTableTest, CompressChunkConcurrent) {
-  Fail("Test concurrent access")
+  Fail("Test concurrent access");
 }
 
 }  // namespace opossum
