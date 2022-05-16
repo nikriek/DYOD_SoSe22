@@ -93,7 +93,7 @@ TEST_F(StorageTableTest, CompressChunk) {
   auto casted_string_segment =
       std::dynamic_pointer_cast<DictionarySegment<std::string>>(compressed_chunk->get_segment(ColumnID{1}));
 
-  EXPECT_TRUE(casted_int_segment->dictionary().size() == 1);
-  EXPECT_TRUE(casted_string_segment->dictionary().size() == 2);
+  EXPECT_EQ(casted_int_segment->dictionary().size(), 1);
+  EXPECT_EQ(casted_string_segment->dictionary().size(), 2);
 }
 }  // namespace opossum
