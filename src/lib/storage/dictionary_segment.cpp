@@ -30,7 +30,7 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   });
 
   // Populate the _attribute_vector with the offsets.
-  for (size_t index = 0; i < value_segment_size; ++index) {
+  for (size_t index = 0; index < value_segment_size; ++index) {
     // Do binary search to find insert position
     auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[index]);
     _attribute_vector->set(index, static_cast<ValueID>(std::distance(_dictionary.cbegin(), find_iterator)));
