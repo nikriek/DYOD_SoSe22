@@ -66,7 +66,7 @@ TEST_F(StorageValueSegmentTest, Values) {
   int_value_segment.append(1338);
 
   auto values = int_value_segment.values();
-  std::vector<int> expected_variants = {1337, 1338};
+  auto expected_variants = std::vector<int>{1337, 1338};
 
   ASSERT_EQ(values.size(), expected_variants.size())
       << "Vectors int_value_segment.values() and expected_variants are of unequal length";

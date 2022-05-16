@@ -10,6 +10,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 #include "value_segment.hpp"
 
