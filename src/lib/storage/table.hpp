@@ -68,7 +68,17 @@ class Table : private Noncopyable {
   void create_new_chunk();
 
  protected:
-  // Implementation goes here
+  // Map column_id as index to names
+  std::vector<std::string> _column_names;
+
+  // Map column_id as index to data types
+  std::vector<std::string> _column_types;
+
+  // Store a list of chunks. Chunks point to individual segments
+  std::vector<std::shared_ptr<Chunk>> _chunks;
+
+  // Maximum chunk size passed by constructor
+  const ChunkOffset _target_chunk_size;
 };
 
 }  // namespace opossum
