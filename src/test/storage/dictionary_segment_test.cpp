@@ -5,6 +5,7 @@
 
 #include "resolve_type.hpp"
 #include "storage/abstract_segment.hpp"
+#include "storage/fixed_width_attribute_vector.hpp"
 #include "storage/dictionary_segment.hpp"
 
 namespace opossum {
@@ -16,7 +17,7 @@ class StorageDictionarySegmentTest : public BaseTest {
   std::shared_ptr<DictionarySegment<std::string>> _string_dict_segment;
 
   void SetUp() override {
-    value_segment_str->append("Bill");
+    value_segment_str->append("Bill"); 
     value_segment_str->append("Steve");
     value_segment_str->append("Alexander");
     value_segment_str->append("Steve");
@@ -46,6 +47,14 @@ TEST_F(StorageDictionarySegmentTest, CompressSegmentString) {
   EXPECT_EQ(dict[1], "Bill");
   EXPECT_EQ(dict[2], "Hasso");
   EXPECT_EQ(dict[3], "Steve");
+
+  const auto attribute_vector = _string_dict_segment->attribute_vector();
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{0}), 1);
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{1}), 3);
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{2}), 0);
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{3}), 3);
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{4}), 2);
+  EXPECT_EQ(attribute_vector->get(ChunkOffset{5}), 1);
 }
 
 TEST_F(StorageDictionarySegmentTest, LowerUpperBound) {
@@ -71,6 +80,9 @@ TEST_F(StorageDictionarySegmentTest, LowerUpperBound) {
 
   EXPECT_EQ(dict_segment->lower_bound(15), INVALID_VALUE_ID);
   EXPECT_EQ(dict_segment->upper_bound(15), INVALID_VALUE_ID);
+  
+  EXPECT_EQ(dict_segment->lower_bound(AllTypeVariant{15}), INVALID_VALUE_ID);
+  EXPECT_EQ(dict_segment->upper_bound(AllTypeVariant{15}), INVALID_VALUE_ID);
 }
 
 TEST_F(StorageDictionarySegmentTest, Append) {
