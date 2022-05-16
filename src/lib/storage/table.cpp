@@ -51,7 +51,7 @@ void Table::create_new_chunk() {
   }
 }
 
-ColumnCount Table::column_count() const { return (ColumnCount)_column_names.size(); }
+ColumnCount Table::column_count() const { return static_cast<ColumnCount>(_column_names.size()); }
 
 ChunkOffset Table::row_count() const {
   // Calculate the count of all full chunks multiplied by the target/max chunk size
@@ -61,7 +61,7 @@ ChunkOffset Table::row_count() const {
   return ChunkOffset{(chunk_count() - 1) * _target_chunk_size + _chunks.back()->size()};
 }
 
-ChunkID Table::chunk_count() const { return (ChunkID)_chunks.size(); }
+ChunkID Table::chunk_count() const { return static_cast<ChunkID>(_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
   // Since this method is only used for debugging, we are fine with a linear

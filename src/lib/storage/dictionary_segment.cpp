@@ -23,16 +23,17 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
-  resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(value_segment->size(), [&](auto type) {
+  const auto value_segment_size = value_segment->size();
+  resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(value_segment_size, [&](auto type) {
     using DataType = typename decltype(type)::type;
-    _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(value_segment->size());
+    _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(value_segment_size);
   });
 
   // Populate the _attribute_vector with the offsets.
-  for (size_t i = 0; i < value_segment->size(); ++i) {
+  for (size_t index = 0; i < value_segment_size; ++index) {
     // Do binary search to find insert position
-    auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[i]);
-    _attribute_vector->set(i, (ValueID)std::distance(_dictionary.cbegin(), find_iterator));
+    auto find_iterator = std::lower_bound(_dictionary.cbegin(), _dictionary.cend(), values[index]);
+    _attribute_vector->set(index, static_cast<ValueID>(std::distance(_dictionary.cbegin(), find_iterator)));
   }
 }
 
