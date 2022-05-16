@@ -9,7 +9,7 @@ FixedWidthAttributeVector<T>::FixedWidthAttributeVector(const size_t size) {
 
 template <typename T>
 ValueID FixedWidthAttributeVector<T>::get(const size_t index) const {
-  return (ValueID)_values.at(index);
+  return static_cast<ValueID>(_values.at(index));
 }
 
 template <typename T>

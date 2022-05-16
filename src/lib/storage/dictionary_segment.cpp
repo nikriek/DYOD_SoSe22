@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <set>
 #include "fixed_width_attribute_vector.hpp"
+#include "resolve_type.hpp"
 #include "type_cast.hpp"
 #include "utils/assert.hpp"
 #include "value_segment.hpp"
-#include "resolve_type.hpp"
 
 namespace opossum {
 
@@ -23,7 +23,7 @@ DictionarySegment<T>::DictionarySegment(const std::shared_ptr<AbstractSegment>& 
   std::copy(distinct_values.begin(), distinct_values.end(), std::back_inserter(_dictionary));
 
   // Initialize the _attribute_vector based on the number of unique values.
-  resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(value_segment->size(), [&](auto type){
+  resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(value_segment->size(), [&](auto type) {
     using DataType = typename decltype(type)::type;
     _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(value_segment->size());
   });
@@ -75,7 +75,7 @@ ValueID DictionarySegment<T>::lower_bound(const T value) const {
   if (lower_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
-  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
+  return static_cast<ValueID>(std::distance(_dictionary.begin(), lower_bound));
 }
 
 template <typename T>
@@ -84,7 +84,7 @@ ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
   if (lower_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
-  return (ValueID)std::distance(_dictionary.begin(), lower_bound);
+  return static_cast<ValueID>(std::distance(_dictionary.begin(), lower_bound));
 }
 
 template <typename T>
@@ -93,7 +93,7 @@ ValueID DictionarySegment<T>::upper_bound(const T value) const {
   if (upper_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
-  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
+  return static_cast<ValueID>(std::distance(_dictionary.begin(), upper_bound));
 }
 
 template <typename T>
@@ -102,17 +102,17 @@ ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
   if (upper_bound == _dictionary.end()) {
     return INVALID_VALUE_ID;
   }
-  return (ValueID)std::distance(_dictionary.begin(), upper_bound);
+  return static_cast<ValueID>(std::distance(_dictionary.begin(), upper_bound));
 }
 
 template <typename T>
 ChunkOffset DictionarySegment<T>::unique_values_count() const {
-  return (ChunkOffset)_dictionary.size();
+  return static_cast<ChunkOffset>(_dictionary.size());
 }
 
 template <typename T>
 ChunkOffset DictionarySegment<T>::size() const {
-  return (ChunkOffset)_attribute_vector->size();
+  return static_cast<ChunkOffset>(_attribute_vector->size());
 }
 
 template <typename T>
