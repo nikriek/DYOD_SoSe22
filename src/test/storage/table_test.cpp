@@ -8,6 +8,7 @@
 
 #include "../lib/resolve_type.hpp"
 #include "../lib/storage/table.hpp"
+#include "storage/dictionary_segment.hpp"
 
 namespace opossum {
 
@@ -72,7 +73,7 @@ TEST_F(StorageTableTest, GetChunkSize) { EXPECT_EQ(table.target_chunk_size(), 2u
 
 TEST_F(StorageTableTest, CompressChunk) {
   table.append({4, "Hello,"});
-  table.append({6, "world"});
+  table.append({4, "world"});
   table.append({3, "world"});
   table.append({3, "world"});
   table.append({3, "!"});
@@ -82,11 +83,17 @@ TEST_F(StorageTableTest, CompressChunk) {
 
   table.compress_chunk(ChunkID{0});
 
-  const auto chunk = table.get_chunk(ChunkID{0});
-}
+  const auto compressed_chunk = table.get_chunk(ChunkID{0});
 
-TEST_F(StorageTableTest, CompressChunkConcurrent) {
-  Fail("Test concurrent access");
-}
+  EXPECT_TRUE(std::dynamic_pointer_cast<DictionarySegment<int>>(compressed_chunk->get_segment(ColumnID{0})));
+  EXPECT_TRUE(std::dynamic_pointer_cast<DictionarySegment<std::string>>(compressed_chunk->get_segment(ColumnID{1})));
 
+  auto casted_int_segment =
+      std::dynamic_pointer_cast<DictionarySegment<int>>(compressed_chunk->get_segment(ColumnID{0}));
+  auto casted_string_segment =
+      std::dynamic_pointer_cast<DictionarySegment<std::string>>(compressed_chunk->get_segment(ColumnID{1}));
+
+  EXPECT_EQ(casted_int_segment->dictionary().size(), 1);
+  EXPECT_EQ(casted_string_segment->dictionary().size(), 2);
+}
 }  // namespace opossum

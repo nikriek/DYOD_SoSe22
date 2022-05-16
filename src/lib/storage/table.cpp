@@ -72,7 +72,7 @@ ColumnID Table::column_id_by_name(const std::string& column_name) const {
   const auto pos =
       std::distance(_column_names.cbegin(), std::find(_column_names.cbegin(), _column_names.cend(), column_name));
   DebugAssert(pos < column_count(), "Column name was not found");
-  return (ColumnID)pos;
+  return static_cast<ColumnID>(pos);
 }
 
 ChunkOffset Table::target_chunk_size() const { return _target_chunk_size; }
@@ -97,12 +97,12 @@ void Table::compress_chunk(const ChunkID chunk_id) {
 
   for (ColumnID index{0}; index < column_count; ++index) {
     const auto segment = input_chunk->get_segment(index);
-    threads.push_back(std::thread([&, index] {
+    threads.emplace_back([&, index, segment] {
       resolve_data_type(_column_types[index], [&](auto type) {
         using DataType = typename decltype(type)::type;
         compressed_segments[index] = std::make_shared<DictionarySegment<DataType>>(segment);
       });
-    }));
+    });
   }
 
   for (auto& thread : threads) {
