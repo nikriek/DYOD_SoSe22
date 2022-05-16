@@ -17,7 +17,7 @@ class StorageDictionarySegmentTest : public BaseTest {
   std::shared_ptr<DictionarySegment<std::string>> _string_dict_segment;
 
   void SetUp() override {
-    value_segment_str->append("Bill"); 
+    value_segment_str->append("Bill");
     value_segment_str->append("Steve");
     value_segment_str->append("Alexander");
     value_segment_str->append("Steve");
@@ -80,7 +80,7 @@ TEST_F(StorageDictionarySegmentTest, LowerUpperBound) {
 
   EXPECT_EQ(dict_segment->lower_bound(15), INVALID_VALUE_ID);
   EXPECT_EQ(dict_segment->upper_bound(15), INVALID_VALUE_ID);
-  
+
   EXPECT_EQ(dict_segment->lower_bound(AllTypeVariant{15}), INVALID_VALUE_ID);
   EXPECT_EQ(dict_segment->upper_bound(AllTypeVariant{15}), INVALID_VALUE_ID);
 }

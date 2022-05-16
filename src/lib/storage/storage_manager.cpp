@@ -14,9 +14,9 @@ StorageManager& StorageManager::get() {
   return instance;
 }
 
-void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) { 
+void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
   Assert(!_tables.contains(name), "Should not contain table with given name");
-  _tables[name] = table; 
+  _tables[name] = table;
 }
 
 void StorageManager::drop_table(const std::string& name) {
