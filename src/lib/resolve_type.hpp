@@ -1,8 +1,8 @@
 #pragma once
 
 #include <functional>
-#include <memory>
 #include <limits>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -97,7 +97,7 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
  * @param size Input size to fit in given data types
  * @param func Function to call with a boost::hana::type_c
  */
-template<typename TypeHead, typename ...TypesTail, typename SizeType, typename Functor>
+template <typename TypeHead, typename... TypesTail, typename SizeType, typename Functor>
 void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
   if (size <= std::numeric_limits<TypeHead>::max()) {
     func(boost::hana::type_c<TypeHead>);
@@ -105,11 +105,10 @@ void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) 
   }
 
   if constexpr (sizeof...(TypesTail) > 0) {
-     resolve_fixed_width_integer_type<TypesTail ...>(size, func);
+    resolve_fixed_width_integer_type<TypesTail...>(size, func);
   } else {
-      Fail("Could not resolve fixed width integer type for given size");
+    Fail("Could not resolve fixed width integer type for given size");
   }
 }
 
 }  // namespace opossum
-

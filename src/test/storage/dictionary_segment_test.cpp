@@ -5,8 +5,8 @@
 
 #include "resolve_type.hpp"
 #include "storage/abstract_segment.hpp"
-#include "storage/fixed_width_attribute_vector.hpp"
 #include "storage/dictionary_segment.hpp"
+#include "storage/fixed_width_attribute_vector.hpp"
 
 namespace opossum {
 
