@@ -28,13 +28,13 @@ class DictionarySegment : public AbstractSegment {
   explicit DictionarySegment(const std::shared_ptr<AbstractSegment>& abstract_segment);
 
   // Return the value at a certain position. If you want to write efficient operators, back off!
-  AllTypeVariant operator[](const ChunkOffset chunk_offset) const override;
+  AllTypeVariant operator[](const ChunkOffset chunk_offset) const final;
 
   // Return the value at a certain position.
   T get(const ChunkOffset chunk_offset) const;
 
   // Dictionary segments are immutable.
-  void append(const AllTypeVariant& value) override;
+  void append(const AllTypeVariant& value) final;
 
   // Returns an underlying dictionary.
   const std::vector<T>& dictionary() const;
@@ -63,7 +63,7 @@ class DictionarySegment : public AbstractSegment {
   ChunkOffset unique_values_count() const;
 
   // Return the number of entries.
-  ChunkOffset size() const override;
+  ChunkOffset size() const final;
 
   // Returns the calculated memory usage.
   size_t estimate_memory_usage() const final;
