@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -76,6 +77,38 @@ void resolve_data_type(const std::string& type_string, const Functor& func) {
       return;
     }
   });
+}
+
+/**
+ * @brief Resolve a type which the size value can fit into. Types are evaluated for their numeric max limit
+ * in the given order from the template parameters. 
+ * 
+ * Example:
+ * 
+ * resolve_fixed_width_integer_type<uint8_t, uint16_t, uint32_t>(size, [&](auto type){
+ *   using DataType = typename decltype(type)::type;
+ *   _attribute_vector = std::make_shared<FixedWidthAttributeVector<DataType>>(size);
+ * });
+ * 
+ * @tparam TypeHead First type to evaluate
+ * @tparam TypesTail Other types to recursively evaluate
+ * @tparam SizeType Type of size to check 
+ * @tparam Functor Evaluation callback called with type boost::hana::type_c
+ * @param size Input size to fit in given data types
+ * @param func Function to call with a boost::hana::type_c
+ */
+template <typename TypeHead, typename... TypesTail, typename SizeType, typename Functor>
+void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) {
+  if (size <= std::numeric_limits<TypeHead>::max()) {
+    func(boost::hana::type_c<TypeHead>);
+    return;
+  }
+
+  if constexpr (sizeof...(TypesTail) > 0) {
+    resolve_fixed_width_integer_type<TypesTail...>(size, func);
+  } else {
+    Fail("Could not resolve fixed width integer type for given size");
+  }
 }
 
 }  // namespace opossum

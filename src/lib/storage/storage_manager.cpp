@@ -10,42 +10,49 @@
 namespace opossum {
 
 StorageManager& StorageManager::get() {
-  return *(new StorageManager());
-  // A really hacky fix to get the tests to run - replace this with your implementation
+  static StorageManager instance;
+  return instance;
 }
 
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  Assert(!_tables.contains(name), "Should not contain table with given name");
+  _tables[name] = table;
 }
 
 void StorageManager::drop_table(const std::string& name) {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  // Throws an exception if the key is not found
+  Assert(_tables.contains(name), "Should contain table with given name");
+  _tables.erase(name);
 }
 
-std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const {
-  // Implementation goes here
-  return nullptr;
-}
+std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const { return _tables.at(name); }
 
-bool StorageManager::has_table(const std::string& name) const {
-  // Implementation goes here
-  return false;
-}
+bool StorageManager::has_table(const std::string& name) const { return _tables.contains(name); }
 
 std::vector<std::string> StorageManager::table_names() const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  std::vector<std::string> names;
+  names.reserve(_tables.size());
+  for (const auto& [table_name, _] : _tables) {
+    names.push_back(table_name);
+  }
+  return names;
 }
 
 void StorageManager::print(std::ostream& out) const {
-  // Implementation goes here
-  Fail("Implementation is missing.");
+  for (auto it = _tables.begin(), end = _tables.end(); it != end; ++it) {
+    out << "Name: " << it->first << ", ";
+    out << "#columns: " << it->second->column_count() << ", ";
+    out << "#rows: " << it->second->row_count() << ", ";
+    out << "#chunks: " << it->second->chunk_count();
+    out << std::endl;
+  }
 }
 
 void StorageManager::reset() {
-  // Implementation goes here
+  // The documentation says "Deletes the entire StorageManager and creates a new one,
+  // used especially in tests.". Clearing the vector with clear() would be fine,
+  // but assigning a new storage manager to the reference also works.
+  StorageManager::get() = StorageManager();
 }
 
 }  // namespace opossum

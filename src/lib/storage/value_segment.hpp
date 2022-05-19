@@ -31,7 +31,8 @@ class ValueSegment : public AbstractSegment {
   size_t estimate_memory_usage() const final;
 
  protected:
-  // Implementation goes here
+  // Stores a list of actual values of template type T
+  std::vector<T> _values;
 };
 
 }  // namespace opossum
