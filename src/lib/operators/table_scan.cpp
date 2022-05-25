@@ -3,6 +3,7 @@
 #include "type_cast.hpp"
 #include "storage/table.hpp"
 #include "storage/chunk.hpp"
+#include "utils/assert.hpp"
 
 namespace opossum {
 
@@ -38,14 +39,13 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         auto data_type = input_table->column_type(_column_id);
 
         resolve_data_type(data_type, [&] (auto type) {
-            using Type = typename decltype(type)::type;
-            auto segment = chunk->get_segment(_column_id);
-            // TODO dictionary segment
-            const auto typed_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment);
-            
-            auto comparator = get_comparator<Type>(_scan_type);
-            bool test = comparator(2, 3);
-            //const auto result = scan_value_segment<Type>(typed_segment, comparator);
+          using Type = typename decltype(type)::type;
+          auto segment = chunk->get_segment(_column_id);
+          // TODO: dictionary segment
+          const auto typed_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment);
+
+          scan_with_correct_comparator<Type>(
+              _scan_type, [&](auto comparator) { scan_value_segment<Type>(typed_segment, comparator); });
         });
     }
     return nullptr;
@@ -53,39 +53,46 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
 }
 
 template <typename T, typename Comparator>
-PosList TableScan::scan_value_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator) {
+PosList TableScan::scan_value_segment(const std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator) {
+  const auto search_value = type_cast<T>(_search_value);
+  auto const values = segment->values();
+  for (ChunkOffset index{0}; index < segment->size(); ++index) {
+    bool should_emit = comparator(values[index], search_value);
+    std::cout << should_emit;
+  }
 
-    const auto search_value = type_cast<T>(_search_value);
-    auto const values = segment->values();
-    for (ChunkOffset index{0}; index < segment->size(); ++index) {
-       bool should_emit = comparator(values[index], search_value);
-    }
-
-    return PosList();
+  return PosList();
 }
 
 template <typename T, typename Comparator>
 PosList TableScan::scan_dictionary_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator) {
-    return PosList();
+  return PosList();
 }
 
-template <typename T> 
-std::binary_function<T,T,bool> TableScan::get_comparator(ScanType scan_type) {
-    switch (scan_type) {
+template <typename T, typename Functor>
+void TableScan::scan_with_correct_comparator(ScanType scan_type, const Functor& func) {
+  switch (scan_type) {
     case ScanType::OpEquals:
-        return std::equal_to<T>{};
+      func(std::equal_to<T>{});
+      break;
     case ScanType::OpNotEquals:
-        return std::not_equal_to<T>{};
+      func(std::not_equal_to<T>{});
+      break;
     case ScanType::OpLessThan:
-        return std::less<T>{};
+      func(std::less<T>{});
+      break;
     case ScanType::OpLessThanEquals:
-        return std::less_equal<T>{};
+      func(std::less_equal<T>{});
+      break;
     case ScanType::OpGreaterThan:
-        return std::greater<T>{};
+      func(std::greater<T>{});
+      break;
     case ScanType::OpGreaterThanEquals:
-        return std::greater_equal<T>{};
-    } 
-    
-    return std::greater_equal<T>{};
+      func(std::greater_equal<T>{});
+      break;
+    default:
+      Fail("Invalid scan type.");
+  }
 }
+
 }  // namespace opossum
