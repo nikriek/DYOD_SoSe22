@@ -20,7 +20,7 @@ ColumnID ReferenceSegment::referenced_column_id() const { return _referenced_col
 const std::shared_ptr<const Table>& ReferenceSegment::referenced_table() const { return _referenced_table; }
 
 AllTypeVariant ReferenceSegment::operator[](const ChunkOffset chunk_offset) const {
-  RowID row_id = (*_position_list)[chunk_offset];
+  const RowID row_id = (*_position_list)[chunk_offset];
   return (*_referenced_table->get_chunk(row_id.chunk_id)->get_segment(_referenced_column_id))[row_id.chunk_offset];
 }
 
