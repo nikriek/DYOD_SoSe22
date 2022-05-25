@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "storage/value_segment.hpp"
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
 #include "types.hpp"
@@ -28,6 +29,20 @@ class TableScan : public AbstractOperator {
 
  protected:
   std::shared_ptr<const Table> _on_execute() override;
+
+private:
+  ColumnID _column_id;
+  ScanType _scan_type;
+  AllTypeVariant _search_value;
+
+  template <typename T, typename Comparator>
+  PosList scan_value_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator);
+
+  template <typename T, typename Comparator>
+  PosList scan_dictionary_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator);
+
+  template <typename T> 
+  std::binary_function<T,T,bool> get_comparator(ScanType scan_type);
 };
 
 }  // namespace opossum
