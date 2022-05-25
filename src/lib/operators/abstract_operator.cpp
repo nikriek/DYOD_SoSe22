@@ -11,7 +11,7 @@ AbstractOperator::AbstractOperator(const std::shared_ptr<const AbstractOperator>
 void AbstractOperator::execute() { _output = _on_execute(); }
 
 std::shared_ptr<const Table> AbstractOperator::get_output() const {
-  Assert(_output != NULL, "Operator not executed. Output is NULL.");
+  Assert(_output, "Operator not executed. Output is NULL.");
 
   return _output;
 }
