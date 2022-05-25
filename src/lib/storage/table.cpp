@@ -22,6 +22,13 @@ namespace opossum {
 
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); }
 
+Table::Table(std::vector<std::shared_ptr<Chunk>>&& chunks, std::vector<std::string> column_names,
+             std::vector<std::string> column_types)
+    : _column_names(std::move(column_names)),
+      _column_types(std::move(column_types)),
+      _chunks(std::move(chunks)),
+      _target_chunk_size(std::numeric_limits<ChunkOffset>::max() - 1) {}
+
 void Table::add_column_definition(const std::string& name, const std::string& type) {
   // Implementation goes here
 }

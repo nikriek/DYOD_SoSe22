@@ -26,6 +26,9 @@ class Table : private Noncopyable {
   // size minus 1. A table holds always at least one chunk.
   explicit Table(const ChunkOffset target_chunk_size = std::numeric_limits<ChunkOffset>::max() - 1);
 
+  Table(std::vector<std::shared_ptr<Chunk>>&& chunks, std::vector<std::string> _column_names,
+        std::vector<std::string> _column_types);
+
   // Returns the number of columns (cannot exceed ColumnID (uint16_t)).
   ColumnCount column_count() const;
 

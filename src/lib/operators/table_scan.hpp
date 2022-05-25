@@ -36,13 +36,14 @@ class TableScan : public AbstractOperator {
   AllTypeVariant _search_value;
 
   template <typename T, typename Comparator>
-  PosList scan_value_segment(const std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator);
+  std::shared_ptr<PosList> scan_value_segment(const std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator,
+                                              ChunkID chunk_id);
 
   template <typename T, typename Comparator>
   PosList scan_dictionary_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator);
 
   template <typename T, typename Functor>
-  void scan_with_correct_comparator(ScanType scan_type, const Functor& func);
+  void resolve_comparator(ScanType scan_type, const Functor& func);
 };
 
 }  // namespace opossum
