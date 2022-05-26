@@ -96,7 +96,7 @@ void Table::compress_chunk(const ChunkID chunk_id) {
 
   for (ColumnID index{0}; index < column_count; ++index) {
     const auto segment = input_chunk->get_segment(index);
-    threads.emplace_back([&, index, segment] {
+    threads.emplace_back([index, segment, compressed_segments] {
       resolve_data_type(_column_types[index], [&](auto type) {
         using DataType = typename decltype(type)::type;
         compressed_segments[index] = std::make_shared<DictionarySegment<DataType>>(segment);
