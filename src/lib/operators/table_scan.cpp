@@ -29,27 +29,28 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   std::vector<std::shared_ptr<Chunk>> output_chunks;
   output_chunks.reserve(input_table->chunk_count());
 
-  // TODO(anyone): Add assertion for types
+  // Use the first chunk to configure the datatype
+  auto data_type = input_table->column_type(_column_id);
+  resolve_data_type(data_type, [&](auto type) {
+    using Type = typename decltype(type)::type; 
+    // TODO(anyone): Do we need an assert?!
+    const auto search_value = type_cast<Type>(_search_value);
 
-  for (ChunkID chunk_id{0}; chunk_id < chunk_count; ++chunk_id) {
-    auto chunk = input_table->get_chunk(chunk_id);
-    auto data_type = input_table->column_type(_column_id);
-
-    // TODO(anyone): Move type resolvement someehwre outside of this loop
-    resolve_data_type(data_type, [&](auto type) {
-      using Type = typename decltype(type)::type;
-      auto segment = chunk->get_segment(_column_id);
-      // TODO(anyone): dictionary segment
-      // TODO(anyone): Grow chunk based on max_chunk_size
-      const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment);
-      resolve_comparator<Type>(_scan_type, [&](auto comparator) {
-        auto position_list = scan_value_segment<Type>(value_segment, comparator, chunk_id);
+    resolve_comparator<Type>(_scan_type, [&](auto comparator) {
+      for (ChunkID chunk_id{0}; chunk_id < chunk_count; ++chunk_id) {
+        const auto chunk = input_table->get_chunk(chunk_id);
+        const auto segment = chunk->get_segment(_column_id);
+        // TODO(anyone): Grow chunk based on max_chunk_size
+        // TODO(anyone): dictionary segment
+        const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment);
+        auto position_list = scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id);
         auto output_chunk = std::make_shared<Chunk>();
         output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, _column_id, position_list));
         output_chunks.push_back(output_chunk);
-      });
+      }
     });
-  }
+  });
+
   std::vector<std::string> column_types;
   column_types.reserve(input_table->column_names().size());
 
@@ -61,12 +62,11 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
 }
 
 template <typename T, typename Comparator>
-std::shared_ptr<PosList> TableScan::scan_value_segment(const std::shared_ptr<ValueSegment<T>>& segment,
+std::shared_ptr<PosList> TableScan::scan_value_segment(const std::shared_ptr<ValueSegment<T>> segment, const T search_value,
                                                        Comparator comparator, const ChunkID chunk_id) {
   auto position_list = std::make_shared<PosList>();
   position_list->reserve(segment->size()); 
 
-  const auto search_value = type_cast<T>(_search_value);
   auto const values = segment->values();
   for (ChunkOffset index{0}; index < segment->size(); ++index) {
     bool should_emit = comparator(values[index], search_value);
@@ -79,28 +79,27 @@ std::shared_ptr<PosList> TableScan::scan_value_segment(const std::shared_ptr<Val
 }
 
 template <typename T, typename Comparator>
-std::shared_ptr<PosList> TableScan::scan_value_segment_optimized(const std::shared_ptr<ValueSegment<T>>& segment,
+std::shared_ptr<PosList> TableScan::scan_value_segment_optimized(const std::shared_ptr<ValueSegment<T>> segment, const T search_value,
                                                             Comparator comparator, const ChunkID chunk_id) {
   auto position_list_ptr = std::make_shared<PosList>();
   position_list_ptr->reserve(segment->size()); 
 
-  const auto search_value = type_cast<T>(_search_value);
   auto const values = segment->values();
 
   PosList position_list = *(position_list_ptr);
   ChunkOffset insertion_index{0};
   for (ChunkOffset index{0}; index < segment->size(); ++index) {
-    position_list[insertion_index] = (RowID{chunk_id, index});
+    position_list[insertion_index] = RowID{chunk_id, index};
     insertion_index += comparator(values[index], search_value);
   }
-
+  // TODO(anyone): Only return up to insertion_index
   position_list_ptr->shrink_to_fit();
   return position_list_ptr;                                          
 }
 
 
 template <typename T, typename Comparator>
-PosList TableScan::scan_dictionary_segment(std::shared_ptr<ValueSegment<T>>& segment, Comparator comparator) {
+PosList TableScan::scan_dictionary_segment(std::shared_ptr<ValueSegment<T>> segment, const T search_value, Comparator comparator) {
   return PosList();
 }
 
