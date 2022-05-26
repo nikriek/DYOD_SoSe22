@@ -111,7 +111,6 @@ void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) 
   }
 }
 
-
 template <typename T, typename Functor>
 void resolve_comparator(ScanType scan_type, const Functor& func) {
   switch (scan_type) {

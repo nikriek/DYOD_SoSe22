@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "storage/value_segment.hpp"
-#include "storage/dictionary_segment.hpp"
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
+#include "storage/dictionary_segment.hpp"
+#include "storage/value_segment.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
 
@@ -37,19 +37,16 @@ class TableScan : public AbstractOperator {
   AllTypeVariant _search_value;
 
   template <typename T, typename Comparator>
-  std::shared_ptr<PosList> scan_value_segment(const std::shared_ptr<ValueSegment<T>> segment,  
-                                              const T search_value,
-                                              Comparator comparator,
-                                              ChunkID chunk_id);
+  std::shared_ptr<PosList> scan_value_segment(const std::shared_ptr<ValueSegment<T>> segment, const T search_value,
+                                              Comparator comparator, ChunkID chunk_id);
 
   template <typename T, typename Comparator>
-  std::shared_ptr<PosList> scan_value_segment_optimized(const std::shared_ptr<ValueSegment<T>> segment, 
-                                                        const T search_value,
-                                                        Comparator comparator,
-                                                        ChunkID chunk_id);
+  std::shared_ptr<PosList> scan_value_segment_optimized(const std::shared_ptr<ValueSegment<T>> segment,
+                                                        const T search_value, Comparator comparator, ChunkID chunk_id);
 
   template <typename T, typename Comparator>
-  std::shared_ptr<PosList>  scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value, Comparator comparator, const ChunkID chunk_id);
+  std::shared_ptr<PosList> scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
+                                                   Comparator comparator, const ChunkID chunk_id);
 };
 
 }  // namespace opossum
