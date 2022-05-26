@@ -111,6 +111,20 @@ void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) 
   }
 }
 
+/**
+ * @brief Resolve a typed comparator based on the ScanType enum value.
+ * 
+ * Example:
+ * 
+ * resolve_comparator<int>(ScanType::OpEquals, [&](auto comparator){
+ *  bool value = comparator(2, 2); // 2 == 2 yields true
+ * });
+ * 
+ * @tparam T Type for the comparator
+ * @tparam Functor Function type to call with resolved comparator 
+ * @param scan_type One values of ScanType enum
+ * @param func  Function to call with resolved comparator 
+ */
 template <typename T, typename Functor>
 void resolve_comparator(ScanType scan_type, const Functor& func) {
   switch (scan_type) {

@@ -7,7 +7,7 @@
 #include "storage/table.hpp"
 #include "table_scan.hpp"
 #include "type_cast.hpp"
-#include "utils/assert.hpp"
+#include "storage/fixed_width_attribute_vector.hpp"
 
 namespace opossum {
 
@@ -46,9 +46,12 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         if (const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment)) {
           position_list = scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id);
         } else if (const auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<Type>>(segment)) {
-          position_list = scan_dictionary_segment<Type>(dictionary_segment, search_value, comparator, chunk_id);
+          // TODO: If we resolve here again, the outer resolve is kinda useless
+          resolve_comparator<ValueID>(_scan_type, [&](auto comparator) {
+            position_list = scan_dictionary_segment<Type>(dictionary_segment, search_value, comparator, chunk_id);
+          });
         } else {
-          Fail("Cannot cast the segment");
+          Fail("Cannot cast the segment for TableScan");
         }
 
         auto output_chunk = std::make_shared<Chunk>();
@@ -83,6 +86,8 @@ std::shared_ptr<PosList> TableScan::scan_value_segment(const std::shared_ptr<Val
     }
   }
 
+  position_list->shrink_to_fit();
+
   return position_list;
 }
 
@@ -110,7 +115,21 @@ template <typename T, typename Comparator>
 std::shared_ptr<PosList> TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment,
                                                             const T search_value, Comparator comparator,
                                                             const ChunkID chunk_id) {
-  return std::make_shared<PosList>();
+  auto position_list = std::make_shared<PosList>();
+  position_list->reserve(segment->size());                                     
+
+  const auto attribute_vector = segment->attribute_vector();
+  for (size_t index{0}; index < attribute_vector->size(); ++index) {
+    // TODO(anyone): Lower bound might not be approriate
+    const auto search_value_id = segment->lower_bound(search_value);
+    if (search_value_id != INVALID_VALUE_ID && comparator(attribute_vector->get(index), search_value_id)) {
+      position_list->emplace_back(RowID{chunk_id, static_cast<ChunkOffset>(index)});
+    }
+  }
+
+  position_list->shrink_to_fit();
+
+  return position_list;
 }
 
 }  // namespace opossum
