@@ -89,7 +89,7 @@ std::shared_ptr<const Chunk> Table::get_chunk(ChunkID chunk_id) const { return _
 void Table::compress_chunk(const ChunkID chunk_id) {
   const auto input_chunk = get_chunk(chunk_id);
   const auto column_count = input_chunk->column_count();
-  std::vector<std::thread> threads;
+  auto threads = std::vector<std::thread>();
   threads.reserve(column_count);
   const auto compressed_chunk = std::make_shared<Chunk>();
   std::vector<std::shared_ptr<AbstractSegment>> compressed_segments(column_count);
