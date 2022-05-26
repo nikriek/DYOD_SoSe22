@@ -111,4 +111,31 @@ void resolve_fixed_width_integer_type(const SizeType size, const Functor& func) 
   }
 }
 
+
+template <typename T, typename Functor>
+void resolve_comparator(ScanType scan_type, const Functor& func) {
+  switch (scan_type) {
+    case ScanType::OpEquals:
+      func(std::equal_to<T>{});
+      break;
+    case ScanType::OpNotEquals:
+      func(std::not_equal_to<T>{});
+      break;
+    case ScanType::OpLessThan:
+      func(std::less<T>{});
+      break;
+    case ScanType::OpLessThanEquals:
+      func(std::less_equal<T>{});
+      break;
+    case ScanType::OpGreaterThan:
+      func(std::greater<T>{});
+      break;
+    case ScanType::OpGreaterThanEquals:
+      func(std::greater_equal<T>{});
+      break;
+    default:
+      Fail("Invalid scan type.");
+  }
+}
+
 }  // namespace opossum
