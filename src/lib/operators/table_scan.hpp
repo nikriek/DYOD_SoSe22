@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "storage/value_segment.hpp"
+#include "storage/dictionary_segment.hpp"
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
 #include "types.hpp"
@@ -48,10 +49,7 @@ class TableScan : public AbstractOperator {
                                                         ChunkID chunk_id);
 
   template <typename T, typename Comparator>
-  PosList scan_dictionary_segment(std::shared_ptr<ValueSegment<T>> segment, const T search_value, Comparator comparator);
-
-  template <typename T, typename Functor>
-  void resolve_comparator(ScanType scan_type, const Functor& func);
+  std::shared_ptr<PosList>  scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value, Comparator comparator, const ChunkID chunk_id);
 };
 
 }  // namespace opossum

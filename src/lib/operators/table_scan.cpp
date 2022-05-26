@@ -41,9 +41,16 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         const auto chunk = input_table->get_chunk(chunk_id);
         const auto segment = chunk->get_segment(_column_id);
         // TODO(anyone): Grow chunk based on max_chunk_size
-        // TODO(anyone): dictionary segment
-        const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment);
-        auto position_list = scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id);
+        
+        std::shared_ptr<PosList> position_list;
+        if(const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment)) {
+          position_list = scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id);
+        } else if(const auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<Type>>(segment)) {
+          position_list = scan_dictionary_segment<Type>(dictionary_segment, search_value, comparator, chunk_id);
+        } else {
+          Fail("Cannot cast the segment");
+        }
+
         auto output_chunk = std::make_shared<Chunk>();
         output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, _column_id, position_list));
         output_chunks.push_back(output_chunk);
@@ -99,34 +106,8 @@ std::shared_ptr<PosList> TableScan::scan_value_segment_optimized(const std::shar
 
 
 template <typename T, typename Comparator>
-PosList TableScan::scan_dictionary_segment(std::shared_ptr<ValueSegment<T>> segment, const T search_value, Comparator comparator) {
-  return PosList();
-}
-
-template <typename T, typename Functor>
-void TableScan::resolve_comparator(ScanType scan_type, const Functor& func) {
-  switch (scan_type) {
-    case ScanType::OpEquals:
-      func(std::equal_to<T>{});
-      break;
-    case ScanType::OpNotEquals:
-      func(std::not_equal_to<T>{});
-      break;
-    case ScanType::OpLessThan:
-      func(std::less<T>{});
-      break;
-    case ScanType::OpLessThanEquals:
-      func(std::less_equal<T>{});
-      break;
-    case ScanType::OpGreaterThan:
-      func(std::greater<T>{});
-      break;
-    case ScanType::OpGreaterThanEquals:
-      func(std::greater_equal<T>{});
-      break;
-    default:
-      Fail("Invalid scan type.");
-  }
+std::shared_ptr<PosList>  TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value, Comparator comparator, const ChunkID chunk_id) {
+  return std::make_shared<PosList>();
 }
 
 }  // namespace opossum
