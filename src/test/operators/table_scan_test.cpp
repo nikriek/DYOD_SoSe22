@@ -22,7 +22,6 @@ namespace opossum {
 
 class OperatorsTableScanTest : public BaseTest {
  protected:
-  
   void SetUp() override {
     _table_wrapper = std::make_shared<TableWrapper>(load_table("src/test/tables/int_float.tbl", 2));
     _table_wrapper->execute();
@@ -101,7 +100,6 @@ class OperatorsTableScanTest : public BaseTest {
   }
 
   std::shared_ptr<TableWrapper> _table_wrapper, _table_wrapper_even_dict;
-
 };
 
 TEST_F(OperatorsTableScanTest, DoubleScan) {
@@ -270,7 +268,6 @@ TEST_F(OperatorsTableScanTest, ScanOnWideDictionarySegment) {
 
   EXPECT_EQ(scan_2->get_output()->row_count(), static_cast<size_t>(37));
 }
-
 
 TEST_F(OperatorsTableScanTest, SimpleTest) {
   auto value_segment_int = std::make_shared<ValueSegment<int>>();

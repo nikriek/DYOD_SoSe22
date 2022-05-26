@@ -3,11 +3,11 @@
 
 #include "resolve_type.hpp"
 #include "storage/chunk.hpp"
+#include "storage/fixed_width_attribute_vector.hpp"
 #include "storage/reference_segment.hpp"
 #include "storage/table.hpp"
 #include "table_scan.hpp"
 #include "type_cast.hpp"
-#include "storage/fixed_width_attribute_vector.hpp"
 
 namespace opossum {
 
@@ -116,7 +116,7 @@ std::shared_ptr<PosList> TableScan::scan_dictionary_segment(std::shared_ptr<Dict
                                                             const T search_value, Comparator comparator,
                                                             const ChunkID chunk_id) {
   auto position_list = std::make_shared<PosList>();
-  position_list->reserve(segment->size());                                     
+  position_list->reserve(segment->size());
 
   const auto attribute_vector = segment->attribute_vector();
   for (size_t index{0}; index < attribute_vector->size(); ++index) {
