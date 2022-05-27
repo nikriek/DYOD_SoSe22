@@ -26,8 +26,9 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   const auto target_chunk_size = input_table->target_chunk_size();
   const auto output_table = std::make_shared<Table>(target_chunk_size);
   const auto chunk_count = input_table->chunk_count();
+  const auto column_count = input_table->column_count();
   std::vector<std::shared_ptr<Chunk>> output_chunks;
-  output_chunks.reserve(input_table->chunk_count());
+  output_chunks.reserve(chunk_count);
 
   // Use the first chunk to configure the datatype
   auto data_type = input_table->column_type(_column_id);
@@ -57,24 +58,20 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         }
 
         auto output_chunk = std::make_shared<Chunk>();
-        output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, _column_id, position_list));
+        for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
+          output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, column_id, position_list));
+        }
+
         output_chunks.push_back(output_chunk);
       }
     });
   });
 
-  // Ensure that we have at least one chunk in the final output
-  if (output_chunks.empty()) {
+if (output_chunks.empty()) {
     output_chunks.push_back(std::make_shared<Chunk>());
   }
-
-  std::vector<std::string> column_types;
-  column_types.reserve(input_table->column_names().size());
-
-  // TODO(anyone): add a getter for column_types to table to avoid this senseless copy
-  for (ColumnID index{0}; index < input_table->column_names().size(); ++index) {
-    column_types.push_back(input_table->column_type(index));
-  }
+  
+  auto column_types = input_table->get_column_types();
   return std::make_shared<Table>(std::move(output_chunks), input_table->column_names(), column_types);
 }
 

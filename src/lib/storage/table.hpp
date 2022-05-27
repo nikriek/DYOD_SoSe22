@@ -51,6 +51,9 @@ class Table : private Noncopyable {
 
   // Returns the column type of the nth column.
   const std::string& column_type(const ColumnID column_id) const;
+  
+  // Return a vector of the columns types of all columns.
+  const std::vector<std::string>& get_column_types() const;
 
   // Returns the column with the given name. This method is intended for debugging purposes only. It does not verify
   // whether a column name is unambiguous.
@@ -76,6 +79,7 @@ class Table : private Noncopyable {
 
   // Compresses a ValueColumn into a DictionaryColumn.
   void compress_chunk(const ChunkID chunk_id);
+
 
  protected:
   // Map column_id as index to names
