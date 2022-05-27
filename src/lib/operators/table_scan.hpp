@@ -8,6 +8,7 @@
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
 #include "storage/dictionary_segment.hpp"
+#include "storage/reference_segment.hpp"
 #include "storage/value_segment.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"

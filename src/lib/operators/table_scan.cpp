@@ -137,8 +137,9 @@ std::shared_ptr<PosList> TableScan::scan_dictionary_segment(std::shared_ptr<Dict
 }
 
 template <typename T, typename Comparator>
-std::shared_ptr<PosList> scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                                Comparator comparator, const ChunkID chunk_id) {
+std::shared_ptr<PosList> TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment,
+                                                           const T search_value, Comparator comparator,
+                                                           const ChunkID chunk_id) {
   return std::make_shared<PosList>();
 }
 }  // namespace opossum
