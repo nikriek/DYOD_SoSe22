@@ -3,11 +3,11 @@
 
 #include "resolve_type.hpp"
 #include "storage/chunk.hpp"
+#include "storage/fixed_width_attribute_vector.hpp"
 #include "storage/reference_segment.hpp"
 #include "storage/table.hpp"
 #include "table_scan.hpp"
 #include "type_cast.hpp"
-#include "storage/fixed_width_attribute_vector.hpp"
 
 namespace opossum {
 
@@ -26,6 +26,7 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   const auto target_chunk_size = input_table->target_chunk_size();
   const auto output_table = std::make_shared<Table>(target_chunk_size);
   const auto chunk_count = input_table->chunk_count();
+  const auto column_count = input_table->column_count();
   std::vector<std::shared_ptr<Chunk>> output_chunks;
   output_chunks.reserve(chunk_count);
 
@@ -55,7 +56,10 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         }
 
         auto output_chunk = std::make_shared<Chunk>();
-        output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, _column_id, position_list));
+        for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
+          output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, column_id, position_list));
+        }
+
         output_chunks.push_back(output_chunk);
       }
     });
@@ -110,7 +114,7 @@ std::shared_ptr<PosList> TableScan::scan_dictionary_segment(std::shared_ptr<Dict
                                                             const T search_value, Comparator comparator,
                                                             const ChunkID chunk_id) {
   auto position_list = std::make_shared<PosList>();
-  position_list->reserve(segment->size());                                     
+  position_list->reserve(segment->size());
 
   const auto attribute_vector = segment->attribute_vector();
   for (size_t index{0}; index < attribute_vector->size(); ++index) {
