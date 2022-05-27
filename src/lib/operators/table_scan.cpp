@@ -67,10 +67,10 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
     });
   });
 
-if (output_chunks.empty()) {
+  if (output_chunks.empty()) {
     output_chunks.push_back(std::make_shared<Chunk>());
   }
-  
+
   auto column_types = input_table->get_column_types();
   return std::make_shared<Table>(std::move(output_chunks), input_table->column_names(), column_types);
 }

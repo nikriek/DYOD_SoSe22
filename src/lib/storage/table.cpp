@@ -93,7 +93,7 @@ const std::string& Table::column_name(const ColumnID column_id) const { return _
 
 const std::string& Table::column_type(const ColumnID column_id) const { return _column_types.at(column_id); }
 
-const std::vector<std::string>& Table::get_column_types() const {return _column_types;}
+const std::vector<std::string>& Table::get_column_types() const { return _column_types; }
 
 std::shared_ptr<Chunk> Table::get_chunk(ChunkID chunk_id) { return _chunks.at(chunk_id); }
 
