@@ -46,10 +46,12 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         if (const auto value_segment = std::dynamic_pointer_cast<ValueSegment<Type>>(segment)) {
           position_list = scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id);
         } else if (const auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<Type>>(segment)) {
-          // TODO: If we resolve here again, the outer resolve is kinda useless
+          // TODO(anyone): If we resolve here again, the outer resolve is kinda useless
           resolve_comparator<ValueID>(_scan_type, [&](auto comparator) {
             position_list = scan_dictionary_segment<Type>(dictionary_segment, search_value, comparator, chunk_id);
           });
+        } else if (const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment)) {
+          position_list = scan_reference_segment<Type>(reference_segment, search_value, comparator, chunk_id);
         } else {
           Fail("Cannot cast the segment for TableScan");
         }
@@ -60,6 +62,11 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
       }
     });
   });
+
+  // Ensure that we have at least one chunk in the final output
+  if (output_chunks.empty()) {
+    output_chunks.push_back(std::make_shared<Chunk>());
+  }
 
   std::vector<std::string> column_types;
   column_types.reserve(input_table->column_names().size());
@@ -132,4 +139,9 @@ std::shared_ptr<PosList> TableScan::scan_dictionary_segment(std::shared_ptr<Dict
   return position_list;
 }
 
+template <typename T, typename Comparator>
+std::shared_ptr<PosList> scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
+                                                Comparator comparator, const ChunkID chunk_id) {
+  return std::make_shared<PosList>();
+}
 }  // namespace opossum
