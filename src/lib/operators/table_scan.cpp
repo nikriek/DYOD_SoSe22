@@ -61,7 +61,7 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
           scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id, position_list);
         });
       } else if (const auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<Type>>(segment)) {
-        resolve_comparator<ValueID>(_scan_type, [&](auto comparator) {
+        resolve_comparator<Type>(_scan_type, [&](auto comparator) {
           scan_dictionary_segment<Type>(dictionary_segment, search_value, comparator, chunk_id, position_list);
         });
       } else if (const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment)) {
@@ -116,12 +116,11 @@ template <typename T, typename Comparator>
 void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
                                         Comparator comparator, const ChunkID chunk_id,
                                         std::shared_ptr<PosList> position_list) {
-  const auto attribute_vector = segment->attribute_vector();
-  for (size_t index{0}; index < attribute_vector->size(); ++index) {
-    // TODO(anyone): Lower bound might not be approriate
-    const auto search_value_id = segment->lower_bound(search_value);
-    if (search_value_id != INVALID_VALUE_ID && comparator(attribute_vector->get(index), search_value_id)) {
-      position_list->emplace_back(RowID{chunk_id, static_cast<ChunkOffset>(index)});
+  // TODO(theo): revisit this method
+  for (ChunkOffset offset{0}; offset < segment->size(); ++offset) {
+    bool should_emit = comparator(segment->get(offset), search_value);
+    if (should_emit) {
+      position_list->emplace_back(RowID{chunk_id, offset});
     }
   }
 }
