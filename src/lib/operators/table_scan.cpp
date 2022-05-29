@@ -116,7 +116,6 @@ template <typename T, typename Comparator>
 void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
                                         Comparator comparator, const ChunkID chunk_id,
                                         std::shared_ptr<PosList> position_list) {
-  // TODO(theo): revisit this method
   if (segment->lower_bound(search_value) == INVALID_VALUE_ID &&
       !(scan_type() == ScanType::OpLessThanEquals || scan_type() == ScanType::OpLessThan)) {
     // There is no value >= in the dictionary.
