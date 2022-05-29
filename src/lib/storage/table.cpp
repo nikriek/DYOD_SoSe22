@@ -22,15 +22,9 @@ namespace opossum {
 
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); }
 
-Table::Table(std::vector<std::shared_ptr<Chunk>>&& chunks, std::vector<std::string> column_names,
-             std::vector<std::string> column_types)
-    : _column_names(std::move(column_names)),
-      _column_types(std::move(column_types)),
-      _chunks(std::move(chunks)),
-      _target_chunk_size(std::numeric_limits<ChunkOffset>::max() - 1) {}
-
 void Table::add_column_definition(const std::string& name, const std::string& type) {
-  // Implementation goes here
+  _column_names.push_back(name);
+  _column_types.push_back(type);
 }
 
 void Table::add_column(const std::string& name, const std::string& type) {
@@ -92,8 +86,6 @@ const std::vector<std::string>& Table::column_names() const { return _column_nam
 const std::string& Table::column_name(const ColumnID column_id) const { return _column_names.at(column_id); }
 
 const std::string& Table::column_type(const ColumnID column_id) const { return _column_types.at(column_id); }
-
-const std::vector<std::string>& Table::get_column_types() const { return _column_types; }
 
 std::shared_ptr<Chunk> Table::get_chunk(ChunkID chunk_id) { return _chunks.at(chunk_id); }
 
