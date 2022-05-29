@@ -117,14 +117,14 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
                                         Comparator comparator, const ChunkID chunk_id,
                                         std::shared_ptr<PosList>& position_list) {
   if (segment->lower_bound(search_value) == INVALID_VALUE_ID &&
-      !(scan_type() == ScanType::OpLessThanEquals || scan_type() == ScanType::OpLessThan)) {
-    // There is no value >= in the dictionary.
-    if (scan_type() == ScanType::OpNotEquals) {
-      // TODO(anyone): return a position list with all values.
-    } else {
-      return;
-    }
+      !(_scan_type == ScanType::OpLessThanEquals || _scan_type == ScanType::OpLessThan) &&
+      _scan_type != ScanType::OpNotEquals) {
+    // There is no value >= search_value in the dictionary, and predicates are non of
+    // OpNotEquals, OpLessThanEquals or OpLessThan. Hence, we can return.
+    return;
   }
+
+  // We have to do the actual comparison.
   for (ChunkOffset offset{0}; offset < segment->size(); ++offset) {
     bool should_emit = comparator(segment->get(offset), search_value);
     if (should_emit) {
