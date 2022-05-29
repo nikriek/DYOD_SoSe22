@@ -44,7 +44,7 @@ class TableScan : public AbstractOperator {
 
   template <typename T, typename Comparator>
   void scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
-                                                   Comparator comparator, const ChunkID chunk_id, std::shared_ptr<PosList> position_list);
+                               Comparator comparator, const ChunkID chunk_id, std::shared_ptr<PosList>& position_list);
 
   template <typename T, typename Comparator>
   void scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
