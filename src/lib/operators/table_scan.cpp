@@ -26,9 +26,9 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   const auto output_table = std::make_shared<Table>();
   const auto column_count = input_table->column_count();
 
-  // If we receive an empty chunk, 
+  // If we receive an empty chunk,
   // we return an empty output table with one chunk only and return early
-  if(input_table->row_count() == 0) {
+  if (input_table->row_count() == 0) {
     for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
       output_table->add_column_definition(input_table->column_name(column_id), input_table->column_type(column_id));
     }
@@ -139,5 +139,18 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
 template <typename T, typename Comparator>
 void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
                                        Comparator comparator, const ChunkID chunk_id,
-                                       std::shared_ptr<PosList> position_list) {}
+                                       std::shared_ptr<PosList> position_list_out) {
+  const auto position_list = segment->pos_list();
+  const auto referenced_table = segment->referenced_table();
+  const auto referenced_column_id = segment->referenced_column_id();
+  
+  for (const RowID& rowID : (*position_list)) {
+    auto value = type_cast<T>(
+        (*referenced_table->get_chunk(chunk_id)->get_segment(referenced_column_id))[rowID.chunk_offset]);
+    bool should_emit = comparator(value, search_value);
+    if (should_emit) {
+      position_list_out->emplace_back(RowID{chunk_id, rowID.chunk_offset});
+    }
+  }
+}
 }  // namespace opossum
