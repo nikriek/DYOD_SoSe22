@@ -1,0 +1,86 @@
+name: Lint, Format and Test
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Lint
+      run: ./scripts/lint.sh
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Format
+      run: ./scripts/format.sh
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
+    env:
+      build_dir: cmake-build-debug  
+      OPOSSUM_HEADLESS_SETUP: true
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: CMake
+      run: cmake "-B$build_dir"
+    - name: Make
+      run: make -C $build_dir -j 8
+    - name: Test
+      run: $build_dir/hyriseTest
+  coverage:
+    runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
+    env:
+      build_dir: cmake-build-debug  
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: CMake
+      run: cmake "-B$build_dir"
+    - name: Make
+      run: make -C $build_dir -j 8 hyriseCoverage 
+    - name: Coverage
+      run: ./scripts/coverage.sh $build_dir
+  addr_ub_sanitization:
+    runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
+    env:
+      build_dir: cmake-build-debug  
+      LSAN_OPTIONS: suppressions=asan-ignore.txt
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: CMake
+      run: cmake "-B$build_dir" "-DENABLE_ADDR_UB_SANITIZATION=ON"
+    - name: Make
+      run: make -C $build_dir -j 8
+    - name: Test
+      run: $build_dir/hyriseTest
+  thread_sanitization:
+    runs-on: ubuntu-latest
+    container:
+      image: hyrise/opossum-ci:22.04
+    env:
+      build_dir: cmake-build-debug  
+      LSAN_OPTIONS: suppressions=asan-ignore.txt
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: CMake
+      run: cmake "-B$build_dir" "-DENABLE_THREAD_SANITIZATION=ON"
+    - name: Make
+      run: make -C $build_dir -j 8
+    - name: Test
+      run: $build_dir/hyriseTest

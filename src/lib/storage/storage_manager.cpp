@@ -14,9 +14,9 @@ StorageManager& StorageManager::get() {
   return instance;
 }
 
-void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) { 
+void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
   Assert(!_tables.contains(name), "Should not contain table with given name");
-  _tables[name] = table; 
+  _tables[name] = table;
 }
 
 void StorageManager::drop_table(const std::string& name) {
@@ -48,8 +48,8 @@ void StorageManager::print(std::ostream& out) const {
   }
 }
 
-void StorageManager::reset() { 
-  // The documentation says "Deletes the entire StorageManager and creates a new one, 
+void StorageManager::reset() {
+  // The documentation says "Deletes the entire StorageManager and creates a new one,
   // used especially in tests.". Clearing the vector with clear() would be fine,
   // but assigning a new storage manager to the reference also works.
   StorageManager::get() = StorageManager();

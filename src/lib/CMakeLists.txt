@@ -20,6 +20,8 @@ set(
     storage/reference_segment.hpp
     storage/storage_manager.cpp
     storage/storage_manager.hpp
+    storage/fixed_width_attribute_vector.cpp
+    storage/fixed_width_attribute_vector.hpp
     storage/table.cpp
     storage/table.hpp
     storage/value_segment.cpp
