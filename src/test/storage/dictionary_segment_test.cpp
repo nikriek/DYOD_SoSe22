@@ -1,7 +1,8 @@
 #include <cmath>
 #include <memory>
 #include <string>
-#include "../base_test.hpp"
+
+#include "base_test.hpp"
 
 #include "resolve_type.hpp"
 #include "storage/abstract_segment.hpp"

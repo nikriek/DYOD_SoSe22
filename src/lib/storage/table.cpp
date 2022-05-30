@@ -22,6 +22,10 @@ namespace opossum {
 
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); }
 
+void Table::add_column_definition(const std::string& name, const std::string& type) {
+  // Implementation goes here
+}
+
 void Table::add_column(const std::string& name, const std::string& type) {
   // We only allow adding columns for empty tables to avoid dealing with default values
   Assert(row_count() == 0, "Adding a column is only allowed for empty tables");
