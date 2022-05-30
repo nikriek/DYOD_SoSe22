@@ -66,7 +66,7 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         });
       } else if (const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment)) {
         resolve_comparator<Type>(_scan_type, [&](auto comparator) {
-          scan_reference_segment<Type>(reference_segment, search_value, comparator, chunk_id, position_list);
+          scan_reference_segment<Type>(reference_segment, search_value, comparator, position_list);
         });
       } else {
         Fail("Cannot cast the segment for TableScan");
@@ -118,7 +118,7 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
 
 template <typename T, typename Comparator>
 void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                       Comparator comparator, const ChunkID chunk_id,
+                                       Comparator comparator,
                                        std::shared_ptr<PosList> position_list_out) {
   const auto position_list = segment->pos_list();
   const auto referenced_table = segment->referenced_table();
@@ -126,10 +126,10 @@ void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment
   
   for (const RowID& rowID : (*position_list)) {
     auto value = type_cast<T>(
-        (*referenced_table->get_chunk(chunk_id)->get_segment(referenced_column_id))[rowID.chunk_offset]);
+        (*referenced_table->get_chunk(rowID.chunk_id)->get_segment(referenced_column_id))[rowID.chunk_offset]);
     bool should_emit = comparator(value, search_value);
     if (should_emit) {
-      position_list_out->emplace_back(RowID{chunk_id, rowID.chunk_offset});
+      position_list_out->emplace_back(rowID);
     }
   }
 }
