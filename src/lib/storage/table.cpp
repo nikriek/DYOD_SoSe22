@@ -94,16 +94,16 @@ std::shared_ptr<const Chunk> Table::get_chunk(ChunkID chunk_id) const { return _
 void Table::compress_chunk(const ChunkID chunk_id) {
   const auto input_chunk = get_chunk(chunk_id);
   const auto column_count = input_chunk->column_count();
-  std::vector<std::thread> threads;
+  auto threads = std::vector<std::thread>();
   threads.reserve(column_count);
   const auto compressed_chunk = std::make_shared<Chunk>();
   std::vector<std::shared_ptr<AbstractSegment>> compressed_segments(column_count);
 
   for (ColumnID index{0}; index < column_count; ++index) {
-    const auto segment = input_chunk->get_segment(index);
-    threads.emplace_back([&, index, segment] {
-      resolve_data_type(_column_types[index], [&](auto type) {
+    threads.emplace_back([this, index, &input_chunk, &compressed_segments] {
+      resolve_data_type(_column_types[index], [index, &input_chunk, &compressed_segments](auto type) {
         using DataType = typename decltype(type)::type;
+        const auto segment = input_chunk->get_segment(index);
         compressed_segments[index] = std::make_shared<DictionarySegment<DataType>>(segment);
       });
     });
