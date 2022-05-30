@@ -272,32 +272,32 @@ TEST_F(OperatorsTableScanTest, ScanOnWideDictionarySegment) {
 }
 
 // TEST_F(OperatorsTableScanTest, SimpleTest) {
-  // auto value_segment_int = std::make_shared<ValueSegment<int>>();
-  // value_segment_int->append(1);
-  // value_segment_int->append(2);
-  // value_segment_int->append(3);
-  // value_segment_int->append(4);
-  // value_segment_int->append(5);
-  // std::vector<std::shared_ptr<Chunk>> chunks;
-  // auto chunk = std::make_shared<Chunk>();
-  // chunks.push_back(chunk);
-  // chunk->add_segment(value_segment_int);
-  // std::vector<std::string> column_types;
-  // column_types.emplace_back("int");
-  // std::vector<std::string> column_names;
-  // column_names.emplace_back("a");
-  // auto table = std::make_shared<Table>(std::move(chunks), column_names, column_types);
-  // const auto table_wrapper = std::make_shared<TableWrapper>(table);
-  // table_wrapper->execute();
-  // auto scan_1 = std::make_shared<opossum::TableScan>(table_wrapper, ColumnID{0}, ScanType::OpGreaterThan, 2);
-  // scan_1->execute();
+// auto value_segment_int = std::make_shared<ValueSegment<int>>();
+// value_segment_int->append(1);
+// value_segment_int->append(2);
+// value_segment_int->append(3);
+// value_segment_int->append(4);
+// value_segment_int->append(5);
+// std::vector<std::shared_ptr<Chunk>> chunks;
+// auto chunk = std::make_shared<Chunk>();
+// chunks.push_back(chunk);
+// chunk->add_segment(value_segment_int);
+// std::vector<std::string> column_types;
+// column_types.emplace_back("int");
+// std::vector<std::string> column_names;
+// column_names.emplace_back("a");
+// auto table = std::make_shared<Table>(std::move(chunks), column_names, column_types);
+// const auto table_wrapper = std::make_shared<TableWrapper>(table);
+// table_wrapper->execute();
+// auto scan_1 = std::make_shared<opossum::TableScan>(table_wrapper, ColumnID{0}, ScanType::OpGreaterThan, 2);
+// scan_1->execute();
 
-  // EXPECT_EQ(scan_1->get_output()->row_count(), static_cast<size_t>(3));
+// EXPECT_EQ(scan_1->get_output()->row_count(), static_cast<size_t>(3));
 
-  // auto scan_2 = std::make_shared<opossum::TableScan>(table_wrapper, ColumnID{0}, ScanType::OpEquals, 1);
-  // scan_2->execute();
+// auto scan_2 = std::make_shared<opossum::TableScan>(table_wrapper, ColumnID{0}, ScanType::OpEquals, 1);
+// scan_2->execute();
 
-  // EXPECT_EQ(scan_2->get_output()->row_count(), static_cast<size_t>(1));
+// EXPECT_EQ(scan_2->get_output()->row_count(), static_cast<size_t>(1));
 // }
 
 }  // namespace opossum

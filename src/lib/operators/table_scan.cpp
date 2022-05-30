@@ -118,12 +118,11 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
 
 template <typename T, typename Comparator>
 void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                       Comparator comparator,
-                                       std::shared_ptr<PosList> position_list_out) {
+                                       Comparator comparator, std::shared_ptr<PosList> position_list_out) {
   const auto position_list = segment->pos_list();
   const auto referenced_table = segment->referenced_table();
   const auto referenced_column_id = segment->referenced_column_id();
-  
+
   for (const RowID& rowID : (*position_list)) {
     auto value = type_cast<T>(
         (*referenced_table->get_chunk(rowID.chunk_id)->get_segment(referenced_column_id))[rowID.chunk_offset]);

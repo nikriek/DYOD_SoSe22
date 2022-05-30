@@ -38,17 +38,16 @@ class TableScan : public AbstractOperator {
   AllTypeVariant _search_value;
 
   template <typename T, typename Comparator>
-  void scan_value_segment(const std::shared_ptr<ValueSegment<T>> segment,
-                                                       const T search_value, Comparator comparator,
-                                                       const ChunkID chunk_id, std::shared_ptr<PosList> position_list);
+  void scan_value_segment(const std::shared_ptr<ValueSegment<T>> segment, const T search_value, Comparator comparator,
+                          const ChunkID chunk_id, std::shared_ptr<PosList> position_list);
 
   template <typename T, typename Comparator>
   void scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
                                Comparator comparator, const ChunkID chunk_id, std::shared_ptr<PosList>& position_list);
 
   template <typename T, typename Comparator>
-  void scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                                  Comparator comparator, std::shared_ptr<PosList> position_list);
+  void scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value, Comparator comparator,
+                              std::shared_ptr<PosList> position_list);
 };
 
 }  // namespace opossum
