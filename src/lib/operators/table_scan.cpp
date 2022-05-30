@@ -116,11 +116,14 @@ template <typename T, typename Comparator>
 void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
                                         Comparator comparator, const ChunkID chunk_id,
                                         std::shared_ptr<PosList>& position_list) {
-  if (segment->lower_bound(search_value) == INVALID_VALUE_ID &&
-      !(_scan_type == ScanType::OpLessThanEquals || _scan_type == ScanType::OpLessThan) &&
-      _scan_type != ScanType::OpNotEquals) {
-    // There is no value >= search_value in the dictionary, and predicates are non of
-    // OpNotEquals, OpLessThanEquals or OpLessThan. Hence, we can return.
+  if ((segment->lower_bound(search_value) == INVALID_VALUE_ID &&
+       (_scan_type == ScanType::OpGreaterThanEquals || _scan_type == ScanType::OpEquals)) ||
+      (segment->upper_bound(search_value) == INVALID_VALUE_ID && _scan_type == ScanType::OpGreaterThan)) {
+    // 1) There is no value >= search_value in the dictionary, and predicate is one of
+    // OpGreaterThanEquals, or OpEquals.
+    // OR
+    // 2) There is no value > search_value, and predicate is OpGreaterThan.
+    // Hence, we can return.
     return;
   }
 
