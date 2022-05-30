@@ -95,10 +95,10 @@ void Table::compress_chunk(const ChunkID chunk_id) {
   std::vector<std::shared_ptr<AbstractSegment>> compressed_segments(column_count);
 
   for (ColumnID index{0}; index < column_count; ++index) {
-    const auto segment = input_chunk->get_segment(index);
-    threads.emplace_back([index, segment, compressed_segments] {
-      resolve_data_type(_column_types[index], [&](auto type) {
+    threads.emplace_back([this, index, &input_chunk, &compressed_segments] {
+      resolve_data_type(_column_types[index], [index, &input_chunk, &compressed_segments](auto type) {
         using DataType = typename decltype(type)::type;
+        const auto segment = input_chunk->get_segment(index);
         compressed_segments[index] = std::make_shared<DictionarySegment<DataType>>(segment);
       });
     });

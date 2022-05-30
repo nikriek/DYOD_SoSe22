@@ -81,11 +81,7 @@ ValueID DictionarySegment<T>::lower_bound(const T value) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::lower_bound(const AllTypeVariant& value) const {
-  const auto lower_bound = std::lower_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  if (lower_bound == _dictionary.end()) {
-    return INVALID_VALUE_ID;
-  }
-  return static_cast<ValueID>(std::distance(_dictionary.begin(), lower_bound));
+  return lower_bound(type_cast<T>(value));
 }
 
 template <typename T>
@@ -99,11 +95,7 @@ ValueID DictionarySegment<T>::upper_bound(const T value) const {
 
 template <typename T>
 ValueID DictionarySegment<T>::upper_bound(const AllTypeVariant& value) const {
-  const auto upper_bound = std::upper_bound(_dictionary.begin(), _dictionary.end(), type_cast<T>(value));
-  if (upper_bound == _dictionary.end()) {
-    return INVALID_VALUE_ID;
-  }
-  return static_cast<ValueID>(std::distance(_dictionary.begin(), upper_bound));
+  return upper_bound(type_cast<T>(value));
 }
 
 template <typename T>
