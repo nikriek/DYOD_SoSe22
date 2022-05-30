@@ -3,9 +3,7 @@
 namespace opossum {
 
 template <typename T>
-FixedWidthAttributeVector<T>::FixedWidthAttributeVector(const size_t size) {
-  _values.reserve(size);
-}
+FixedWidthAttributeVector<T>::FixedWidthAttributeVector(const size_t size) : _values(size) {}
 
 template <typename T>
 ValueID FixedWidthAttributeVector<T>::get(const size_t index) const {
@@ -14,11 +12,7 @@ ValueID FixedWidthAttributeVector<T>::get(const size_t index) const {
 
 template <typename T>
 void FixedWidthAttributeVector<T>::set(const size_t index, const ValueID value_id) {
-  if (_values.size() <= index) {
-    _values.push_back(value_id);
-  } else {
-    _values[index] = value_id;
-  }
+  _values[index] = value_id;
 }
 
 template <typename T>
