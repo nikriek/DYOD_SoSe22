@@ -92,26 +92,6 @@ void TableScan::scan_value_segment(const std::shared_ptr<ValueSegment<T>> segmen
   }
 }
 
-// template <typename T, typename Comparator>
-// std::shared_ptr<PosList> TableScan::scan_value_segment_optimized(const std::shared_ptr<ValueSegment<T>> segment,
-//                                                                  const T search_value, Comparator comparator,
-//                                                                  const ChunkID chunk_id) {
-//   auto position_list_ptr = std::make_shared<PosList>();
-//   position_list_ptr->reserve(segment->size());
-
-//   auto const values = segment->values();
-
-//   PosList position_list = *(position_list_ptr);
-//   ChunkOffset insertion_index{0};
-//   for (ChunkOffset index{0}; index < segment->size(); ++index) {
-//     position_list[insertion_index] = RowID{chunk_id, index};
-//     insertion_index += comparator(values[index], search_value);
-//   }
-//   // TODO(anyone): Only return up to insertion_index
-//   position_list_ptr->shrink_to_fit();
-//   return position_list_ptr;
-// }
-
 template <typename T, typename Comparator>
 void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const T search_value,
                                         Comparator comparator, const ChunkID chunk_id,
