@@ -40,12 +40,8 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   const auto chunk_count = input_table->chunk_count();
   std::shared_ptr<Chunk> output_chunk = output_table->get_chunk(ChunkID{0});
 
-  for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
-    output_table->add_column_definition(input_table->column_name(column_id), input_table->column_type(column_id));
-    output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, column_id, position_list));
-  }
-
   // Use the first chunk to configure the datatype
+  auto is_reference_segment = false;
   auto data_type = input_table->column_type(_column_id);
   resolve_data_type(data_type, [&](auto type) {
     using Type = typename decltype(type)::type;
@@ -68,13 +64,28 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         resolve_comparator<Type>(_scan_type, [&](auto comparator) {
           scan_reference_segment<Type>(reference_segment, search_value, comparator, position_list);
         });
+        is_reference_segment = true;
       } else {
         Fail("Cannot cast the segment for TableScan");
       }
     }
-
     position_list->shrink_to_fit();
   });
+
+  std::shared_ptr<const Table> real_table;
+
+  if (is_reference_segment) {
+    const auto chunk = input_table->get_chunk(ChunkID{0});
+    const auto segment = chunk->get_segment(_column_id);
+    const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment);
+    real_table = reference_segment->referenced_table();
+  } else {
+    real_table = input_table;
+  }
+  for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
+    output_table->add_column_definition(input_table->column_name(column_id), input_table->column_type(column_id));
+    output_chunk->add_segment(std::make_shared<ReferenceSegment>(real_table, column_id, position_list));
+  }
 
   return output_table;
 }
