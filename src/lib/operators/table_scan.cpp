@@ -58,7 +58,7 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         resolve_comparator<Type>(_scan_type, [&](auto comparator) {
           scan_value_segment<Type>(value_segment, search_value, comparator, chunk_id, position_list);
         });
-      
+
       } else if (const auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<Type>>(segment)) {
         // Handle Dictionary Segments
         resolve_comparator<Type>(_scan_type, [&](auto comparator) {
