@@ -43,7 +43,8 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   // Loop through all chunks and get our desired segment by the column id
   // Each specialized scan operation takes the existing segments, the type cased search value
   // a comparator (e.g. std::equal{} that is resolved by the enum value OpEqual), chunk id and a positions list
-  // that gets updated. To make things easier, we resolve the data type before hand and map the scan type to a CPP operator class
+  // that gets updated. To make things easier, we resolve the data type before hand and map the
+  // scan type to a CPP operator class
   auto data_type = input_table->column_type(_column_id);
   resolve_data_type(data_type, [&](auto type) {
     using Type = typename decltype(type)::type;
