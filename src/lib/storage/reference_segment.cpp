@@ -9,7 +9,6 @@ ReferenceSegment::ReferenceSegment(const std::shared_ptr<const Table>& reference
 ChunkOffset ReferenceSegment::size() const { return _position_list->size(); }
 
 size_t ReferenceSegment::estimate_memory_usage() const {
-  // TODO(theo): revisit
   return sizeof(RowID) * size();
 }
 

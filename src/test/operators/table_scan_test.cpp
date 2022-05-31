@@ -60,6 +60,8 @@ class OperatorsTableScanTest : public BaseTest {
 
   std::shared_ptr<TableWrapper> get_table_op_with_n_dict_entries(const int32_t num_entries) {
     // Set up dictionary encoded table with a dictionary consisting of num_entries entries.
+    // We removed the target chunk size = 0 here, it's not clear from the documentation what this magic value
+    // represents
     auto table = std::make_shared<opossum::Table>();
     table->add_column("a", "int");
     table->add_column("b", "float");
