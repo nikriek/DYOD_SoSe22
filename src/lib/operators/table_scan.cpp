@@ -22,7 +22,7 @@ ScanType TableScan::scan_type() const { return _scan_type; }
 const AllTypeVariant& TableScan::search_value() const { return _search_value; }
 
 std::shared_ptr<const Table> TableScan::_on_execute() {
-  const auto input_table = _left_input->get_output();
+  auto input_table = _left_input->get_output();
   const auto output_table = std::make_shared<Table>();
   const auto column_count = input_table->column_count();
 
@@ -41,7 +41,6 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
   std::shared_ptr<Chunk> output_chunk = output_table->get_chunk(ChunkID{0});
 
   // Use the first chunk to configure the datatype
-  auto is_reference_segment = false;
   auto data_type = input_table->column_type(_column_id);
   resolve_data_type(data_type, [&](auto type) {
     using Type = typename decltype(type)::type;
@@ -62,9 +61,9 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
         });
       } else if (const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment)) {
         resolve_comparator<Type>(_scan_type, [&](auto comparator) {
-          scan_reference_segment<Type>(reference_segment, search_value, comparator, position_list);
+          input_table = scan_reference_segment<Type>(reference_segment, search_value, comparator, position_list);
         });
-        is_reference_segment = true;
+        break;
       } else {
         Fail("Cannot cast the segment for TableScan");
       }
@@ -72,19 +71,9 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
     position_list->shrink_to_fit();
   });
 
-  std::shared_ptr<const Table> real_table;
-
-  if (is_reference_segment) {
-    const auto chunk = input_table->get_chunk(ChunkID{0});
-    const auto segment = chunk->get_segment(_column_id);
-    const auto reference_segment = std::dynamic_pointer_cast<ReferenceSegment>(segment);
-    real_table = reference_segment->referenced_table();
-  } else {
-    real_table = input_table;
-  }
   for (ColumnID column_id{0}; column_id < column_count; ++column_id) {
     output_table->add_column_definition(input_table->column_name(column_id), input_table->column_type(column_id));
-    output_chunk->add_segment(std::make_shared<ReferenceSegment>(real_table, column_id, position_list));
+    output_chunk->add_segment(std::make_shared<ReferenceSegment>(input_table, column_id, position_list));
   }
 
   return output_table;
@@ -128,8 +117,8 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
 }
 
 template <typename T, typename Comparator>
-void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                       Comparator comparator, std::shared_ptr<PosList> position_list_out) {
+std::shared_ptr<const Table> TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
+                                        Comparator comparator, std::shared_ptr<PosList> position_list_out) {
   const auto position_list = segment->pos_list();
   const auto referenced_table = segment->referenced_table();
   const auto referenced_column_id = segment->referenced_column_id();
@@ -142,5 +131,7 @@ void TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment
       position_list_out->emplace_back(rowID);
     }
   }
+
+  return referenced_table;
 }
 }  // namespace opossum
