@@ -141,7 +141,7 @@ std::shared_ptr<const Table> TableScan::scan_reference_segment(std::shared_ptr<R
         (*referenced_table->get_chunk(row_id.chunk_id)->get_segment(referenced_column_id))[row_id.chunk_offset]);
     bool should_emit = comparator(value, search_value);
     if (should_emit) {
-      position_list_out->emplace_back(row_id);
+      position_list_out->push_back(row_id);
     }
   }
 
