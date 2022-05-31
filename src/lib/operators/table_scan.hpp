@@ -46,8 +46,8 @@ class TableScan : public AbstractOperator {
                                Comparator comparator, const ChunkID chunk_id, std::shared_ptr<PosList>& position_list);
 
   template <typename T, typename Comparator>
-  std::shared_ptr<const Table> scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value, Comparator comparator,
-                                std::shared_ptr<PosList> position_list);
+  std::shared_ptr<const Table> scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
+                                                      Comparator comparator, std::shared_ptr<PosList> position_list);
 };
 
 }  // namespace opossum

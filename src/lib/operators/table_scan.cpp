@@ -84,10 +84,10 @@ void TableScan::scan_value_segment(const std::shared_ptr<ValueSegment<T>> segmen
                                    Comparator comparator, const ChunkID chunk_id,
                                    std::shared_ptr<PosList> position_list) {
   auto const values = segment->values();
-  for (ChunkOffset index{0}; index < segment->size(); ++index) {
-    bool should_emit = comparator(values[index], search_value);
+  for (ChunkOffset chunk_offset{0}; chunk_offset < segment->size(); ++chunk_offset) {
+    bool should_emit = comparator(values[chunk_offset], search_value);
     if (should_emit) {
-      position_list->emplace_back(RowID{chunk_id, index});
+      position_list->emplace_back(RowID{chunk_id, chunk_offset});
     }
   }
 }
@@ -108,27 +108,28 @@ void TableScan::scan_dictionary_segment(std::shared_ptr<DictionarySegment<T>> se
   }
 
   // We have to do the actual comparison.
-  for (ChunkOffset offset{0}; offset < segment->size(); ++offset) {
-    bool should_emit = comparator(segment->get(offset), search_value);
+  for (ChunkOffset chunk_offset{0}; chunk_offset < segment->size(); ++chunk_offset) {
+    bool should_emit = comparator(segment->get(chunk_offset), search_value);
     if (should_emit) {
-      position_list->emplace_back(RowID{chunk_id, offset});
+      position_list->emplace_back(RowID{chunk_id, chunk_offset});
     }
   }
 }
 
 template <typename T, typename Comparator>
-std::shared_ptr<const Table> TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment, const T search_value,
-                                        Comparator comparator, std::shared_ptr<PosList> position_list_out) {
+std::shared_ptr<const Table> TableScan::scan_reference_segment(std::shared_ptr<ReferenceSegment> segment,
+                                                               const T search_value, Comparator comparator,
+                                                               std::shared_ptr<PosList> position_list_out) {
   const auto position_list = segment->pos_list();
-  const auto referenced_table = segment->referenced_table();
+  auto referenced_table = segment->referenced_table();
   const auto referenced_column_id = segment->referenced_column_id();
 
-  for (const RowID& rowID : (*position_list)) {
-    auto value = type_cast<T>(
-        (*referenced_table->get_chunk(rowID.chunk_id)->get_segment(referenced_column_id))[rowID.chunk_offset]);
+  for (const RowID& row_id : *position_list) {
+    const auto value = type_cast<T>(
+        (*referenced_table->get_chunk(row_id.chunk_id)->get_segment(referenced_column_id))[row_id.chunk_offset]);
     bool should_emit = comparator(value, search_value);
     if (should_emit) {
-      position_list_out->emplace_back(rowID);
+      position_list_out->emplace_back(row_id);
     }
   }
 
