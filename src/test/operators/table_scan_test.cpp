@@ -60,7 +60,9 @@ class OperatorsTableScanTest : public BaseTest {
 
   std::shared_ptr<TableWrapper> get_table_op_with_n_dict_entries(const int32_t num_entries) {
     // Set up dictionary encoded table with a dictionary consisting of num_entries entries.
-    auto table = std::make_shared<opossum::Table>(0);
+    // We removed the target chunk size = 0 here, it's not clear from the documentation what this magic value
+    // represents
+    auto table = std::make_shared<opossum::Table>();
     table->add_column("a", "int");
     table->add_column("b", "float");
 
@@ -118,8 +120,9 @@ TEST_F(OperatorsTableScanTest, EmptyResultScan) {
   auto scan_1 = std::make_shared<TableScan>(_table_wrapper, ColumnID{0}, ScanType::OpGreaterThan, 90000);
   scan_1->execute();
 
-  for (auto chunk_index = ChunkID{0}; chunk_index < scan_1->get_output()->chunk_count(); chunk_index++)
+  for (auto chunk_index = ChunkID{0}; chunk_index < scan_1->get_output()->chunk_count(); chunk_index++) {
     EXPECT_EQ(scan_1->get_output()->get_chunk(chunk_index)->column_count(), 2u);
+  }
 }
 
 TEST_F(OperatorsTableScanTest, SingleScanReturnsCorrectRowCount) {

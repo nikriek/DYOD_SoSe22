@@ -23,7 +23,8 @@ namespace opossum {
 Table::Table(const ChunkOffset target_chunk_size) : _target_chunk_size(target_chunk_size) { create_new_chunk(); }
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
-  // Implementation goes here
+  _column_names.push_back(name);
+  _column_types.push_back(type);
 }
 
 void Table::add_column(const std::string& name, const std::string& type) {
